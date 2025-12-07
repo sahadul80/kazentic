@@ -10,8 +10,9 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
 import { SideMenu } from "@/components/layout/SideMenu"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { WorkspaceSelection } from "@/components/Workspace"
-import { Loader2 } from "lucide-react"
+import { Loader2, LucideMessageCircleQuestionMark } from "lucide-react"
 import { mockUsers } from "@/data/mockStorageData"
+import { AppBreadcrumb } from "@/components/dashboard/app-breadcrumb"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -70,23 +71,23 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen min-w-screen">
-        <Header />
-        <div className="flex">
-          <SideMenu />
-          <div className="flex-1">
-            <NavigationProvider>
-              <SidebarProvider>
-                <div className="flex h-[calc(100vh-38px)]">
-                  <AppSidebar />
-                  <main className="flex-1 w-screen">
-                    {children}
-                  </main>
-                </div>
-              </SidebarProvider>
-            </NavigationProvider>
-          </div>
-        </div>
+      <Header />
+      <SideMenu />
+      <div className="flex h-[calc(100vh-38px)] w-screen rounded-lg">
+        <NavigationProvider>
+          <SidebarProvider>
+            <AppSidebar />
+            <div className="flex-1 mx-auto">
+              <div className="sticky top-[38px] h-[36px] bg-background border-b flex items-center justify-between mx-auto px-16">
+                <AppBreadcrumb />
+                <LucideMessageCircleQuestionMark/>
+              </div>
+              <div className="flex flex-col h-full max-w-7xl">
+                {children}
+              </div>
+            </div>
+          </SidebarProvider>
+        </NavigationProvider>
       </div>
     </ProtectedRoute>
   )

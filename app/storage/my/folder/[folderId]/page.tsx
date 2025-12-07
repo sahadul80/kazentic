@@ -176,7 +176,7 @@ export default function FolderPage() {
   }, [folderItems]);
 
   return (
-    <div className="flex flex-col w-6xl mx-auto">
+    <div className="flex flex-col max-w-6xl mx-auto">
       <BaseStorageLayout
         // Data
         folders={filteredFolders}

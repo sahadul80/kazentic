@@ -74,13 +74,119 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
         title: "Dashboard",
         url: "/dashboard",
         icon: DashboardIcon,
-        isActive: true,
+        isActive: false,
+      },
+      {
+        title: "Manage",
+        url: "/manage",
+        icon: DashboardIcon,
+        isActive: false,
+        items: [
+          {
+            title: "Settings",
+            url: "/manage/settings",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "Emplyees",
+            url: "/storage/employees",
+            Icon: StorageSend2Icon
+          },
+          {
+            title: "Guests",
+            url: "/manage/guests",
+            Icon: StorageTrashIcon
+          },
+          {
+            title: "Teams",
+            url: "/manage/teams",
+            Icon: StorageStatusIcon
+          },
+          {
+            title: "Access Control",
+            url: "/manage/access-control",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "Statistics",
+            url: "/storage/statistics",
+            Icon: StorageSend2Icon
+          },
+          {
+            title: "Confuguration",
+            url: "/manage/configuration",
+            Icon: StorageTrashIcon
+          }
+        ]
+      },
+      {
+        title: "Time Tracker",
+        url: "/time-tracker",
+        icon: DashboardIcon,
+        isActive: false,
+      },
+      {
+        title: "Tasks",
+        url: "/tasks",
+        icon: StorageIcon,
+        isActive: false,
+        items: [
+          {
+            title: "Projects",
+            url: "/tasks/projects",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "Sprint",
+            url: "/tasks/Sprint",
+            Icon: StorageSend2Icon
+          }
+        ]
+      },
+      {
+        title: "Reports",
+        url: "/reports",
+        icon: StorageIcon,
+        isActive: false,
+        items: [
+          {
+            title: "General Reports",
+            url: "/reports/general",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "User Reports",
+            url: "/reports/user",
+            Icon: StorageSend2Icon
+          },
+          {
+            title: "Weekly Reports",
+            url: "/reports/weekly",
+            Icon: StorageTrashIcon
+          },
+          {
+            title: "Project Reports",
+            url: "/reports/project",
+            Icon: StorageStatusIcon
+          },
+          {
+            title: "Activity Logs",
+            url: "/reports/activity-logs",
+            Icon: StorageStatusIcon
+          }
+        ]
+      },
+      {
+        title: "Email",
+        url: "/email",
+        icon: DashboardIcon,
+        isActive: false,
       },
       {
         title: "Storage",
         url: "/storage/my",
         icon: StorageIcon,
-        isActive: false,
+        isActive: true,
         items: [
           {
             title: "My Storage",
@@ -105,8 +211,82 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
         ]
       },
       {
+        title: "Calendar",
+        url: "/calendar",
+        icon: DashboardIcon,
+        isActive: false,
+      },
+      {
         title: "Notes",
         url: "/notes",
+        icon: NotesIcon,
+        isActive: false,
+      },
+      {
+        title: "HRM",
+        url: "/hrm",
+        icon: StorageIcon,
+        isActive: false,
+        items: [
+          {
+            title: "Hiring",
+            url: "/hrm/hiring",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "Payroll",
+            url: "/hrm/payroll",
+            Icon: StorageSend2Icon
+          },
+          {
+            title: "Performance",
+            url: "/hrm/performance",
+            Icon: StorageTrashIcon
+          },
+          {
+            title: "Leaves",
+            url: "/hrm/leaves",
+            Icon: StorageStatusIcon
+          },
+          {
+            title: "Notices",
+            url: "/hrm/notices",
+            Icon: StorageStatusIcon
+          },
+          {
+            title: "Find Jobs",
+            url: "/hrm/find-jobs",
+            Icon: StorageStatusIcon
+          }
+        ]
+      },
+      {
+        title: "CRM",
+        url: "/crm",
+        icon: StorageIcon,
+        isActive: false,
+        items: [
+          {
+            title: "Leads",
+            url: "/crm/leads",
+            Icon: StorageDriveIcon
+          },
+          {
+            title: "Deals",
+            url: "/crm/deals",
+            Icon: StorageSend2Icon
+          }
+        ]
+      },
+      {
+        title: "Chat",
+        url: "/chat",
+        icon: NotesIcon,
+        isActive: false,
+      },
+      {
+        title: "Forms",
+        url: "/forms",
         icon: NotesIcon,
         isActive: false,
       }

@@ -26,6 +26,7 @@ import {
   BreadcrumbItem
 } from "@/types/storage";
 import { AppBreadcrumb } from "../dashboard/app-breadcrumb";
+import { StorageHeader } from "./StorageHeader";
 
 interface BaseStorageLayoutProps {
   // Data
@@ -241,8 +242,125 @@ export function BaseStorageLayout({
     // This would create a new folder
   };
 
+  // Get the appropriate title based on storage type and current folder
+  const getHeaderTitle = () => {
+    if (currentFolder) {
+      return currentFolder.name;
+    }
+    
+    switch (storageType) {
+      case 'shared':
+        return 'Shared with me';
+      case 'workspace':
+        return workspaceId ? `Workspace ${workspaceId}` : 'Workspace Storage';
+      default:
+        return title;
+    }
+  };
+
+  // Get breadcrumb items for navigation
+  const getBreadcrumbItems = () => {
+    if (showBreadcrumbs && breadcrumbs) {
+      return breadcrumbs;
+    }
+    return [];
+  };
+
+  // Handle breadcrumb navigation
+  const handleBreadcrumbItemClick = (item: BreadcrumbItem) => {
+    if (item.type === 'folder' && item.id !== undefined && onNavigateToFolder) {
+      onNavigateToFolder(item.id);
+    } else if (item.type === 'root' && onNavigateToFolder) {
+      onNavigateToFolder(0); // Navigate to root
+    }
+  };
+
   return (
-    <div className="flex flex-col h-full w-full">
+    <div className="flex flex-col h-full mt-8">
+      {/* Main Header - Conditionally render based on breadcrumbs */}
+      {showBreadcrumbs ? (
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
+        <div className="flex items-center gap-4">
+          {/* Search Input */}
+          <div className="relative w-64">
+            <input
+              placeholder={searchPlaceholder}
+              className="pl-4 pr-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              value={filters.search}
+              onChange={(e) => onSearch(e.target.value)}
+            />
+            <svg
+              className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+      ) : (
+        /* Simplified header without breadcrumbs */
+        <div className="border-b">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
+            
+            <div className="flex items-center gap-4">
+              {/* Search Input */}
+              <div className="relative w-64">
+                <input
+                  placeholder={searchPlaceholder}
+                  className="pl-4 pr-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={filters.search}
+                  onChange={(e) => onSearch(e.target.value)}
+                />
+                <svg
+                  className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              
+              {/* Action buttons */}
+              {showAddNewButton && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUploadFile}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={onAddNew}
+                  >
+                    <FolderPlus className="mr-2 h-4 w-4" />
+                    New Folder
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Current Folder Info */}
       {currentFolder && showFolderNavigation && (
         <div className="bg-muted/30 border-b">
@@ -310,10 +428,9 @@ export function BaseStorageLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-auto">
-        <div className="p-6">
 
           {/* Filters Bar */}
-          <div className="mt-6">
+          <div className="mt-4 mb-4">
             <FiltersBar
               filters={filters}
               onFilterChange={onFilterChange}
@@ -334,7 +451,7 @@ export function BaseStorageLayout({
           </div>
 
           {/* Content Sections */}
-          <div className="mt-6 space-y-8">
+          <div className="relative">
             {/* Folders Section */}
             {filteredFolders.length > 0 && (
               <FoldersSection
@@ -447,7 +564,6 @@ export function BaseStorageLayout({
               </Card>
             </div>
           )}
-        </div>
       </div>
     </div>
   );

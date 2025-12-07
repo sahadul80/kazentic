@@ -1,6 +1,3 @@
-// components/storage/StorageHeaderWrapper.tsx
-import { StorageHeader as OriginalStorageHeader } from "./Header";
-
 interface StorageHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -23,7 +20,7 @@ export function StorageHeader({
 }: StorageHeaderProps) {
   if (showBreadcrumb) {
     return (
-      <OriginalStorageHeader
+      <StorageHeader
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
         onUploadFile={onUploadFile}
@@ -34,13 +31,12 @@ export function StorageHeader({
   }
 
   return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         
         <div className="flex items-center gap-4">
           {/* Search Input */}
-          <div className="relative w-64">
+          <div className="relative">
             <input
               placeholder="Search items..."
               className="pl-4 pr-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -63,6 +59,5 @@ export function StorageHeader({
           </div>
         </div>
       </div>
-    </div>
   );
 }
