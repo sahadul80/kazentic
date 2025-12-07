@@ -62,6 +62,7 @@ export interface EnhancedFolderItem extends FolderItem {
   fileIds?: string[];
   childFolderIds?: string[];
   sharingRecords?: SharingRecord[];
+  totalSizeMB?: number;
 }
 
 export interface EnhancedFileItem extends FileItem {

@@ -296,29 +296,28 @@ export function StorageView() {
     setIsInfoSidebarOpen(false);
   }, [clearSelection, setSelectedWorkspace]);
 
-  // Calculate selected info - FIXED VERSION
-  const selectedInfo = useMemo(() => {
-    const selectedFolders = filteredFolders.filter(f => selectedItems.includes(f.id));
-    const selectedFiles = filteredFiles.filter(f => selectedItems.includes(f.id));
-    const selectedAllItems = [...selectedFolders, ...selectedFiles];
-    
-    const totalSize = selectedFolders.reduce((sum, folder) => {
-      const sizeNum = parseFloat(folder.size.replace(/[^0-9.]/g, ''));
-      return sum + (isNaN(sizeNum) ? 0 : sizeNum);
-    }, 0) + selectedFiles.reduce((sum, file) => {
-      const sizeNum = parseFloat(file.size.replace(/[^0-9.]/g, ''));
-      return sum + (isNaN(sizeNum) ? 0 : sizeNum);
-    }, 0);
-    
-    return {
-      count: selectedItems.length,
-      size: `${Math.round(totalSize)}MB`,
-      folders: selectedFolders.length,
-      files: selectedFiles.length,
-      items: selectedAllItems,
-      totalSizeMB: totalSize,
-    };
-  }, [selectedItems, filteredFolders, filteredFiles]);
+const selectedInfo = useMemo(() => {
+  const selectedFolders = filteredFolders.filter(f => selectedItems.includes(f.id));
+  const selectedFiles = filteredFiles.filter(f => selectedItems.includes(f.id));
+  const selectedAllItems = [...selectedFolders, ...selectedFiles];
+  
+  const totalSize = selectedFolders.reduce((sum, folder) => {
+    const sizeNum = parseFloat(folder.size.replace(/[^0-9.]/g, ''));
+    return sum + (isNaN(sizeNum) ? 0 : sizeNum);
+  }, 0) + selectedFiles.reduce((sum, file) => {
+    const sizeNum = parseFloat(file.size.replace(/[^0-9.]/g, ''));
+    return sum + (isNaN(sizeNum) ? 0 : sizeNum);
+  }, 0);
+  
+  return {
+    count: selectedItems.length,
+    size: `${Math.round(totalSize)}MB`,
+    folders: selectedFolders.length,
+    files: selectedFiles.length,
+    items: selectedAllItems,
+    totalSizeMB: totalSize,
+  };
+}, [selectedItems, filteredFolders, filteredFiles]);
 
   // Handle bulk action
   const handleBulkActionWithSelection = useCallback((action: string) => {
