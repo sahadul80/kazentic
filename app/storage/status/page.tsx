@@ -5,8 +5,8 @@ import { Pi } from "lucide-react";
 
 export default function StatusPage () {
     return(
-        <>
-        <StoragePieCard/>
-        </>
+        <div className="max-w-[1184px] mx-auto">
+            <StoragePieCard/>
+        </div>
     )
 }

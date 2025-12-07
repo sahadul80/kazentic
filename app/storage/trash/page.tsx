@@ -3,8 +3,8 @@ import { TrashStorageView } from "@/components/storage/TrashStorageView";
 
 export default function TrashPage () {
     return(
-        <>
-        <TrashStorageView/>
-        </>
+        <div className="max-w-[1184px] mx-auto">
+            <TrashStorageView/>
+        </div>
     )
 }

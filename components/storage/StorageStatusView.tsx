@@ -290,7 +290,7 @@ export default function StoragePage() {
   }, [activeFilesOnly]);
 
   return (
-    <div className="w-full p-6 space-y-6 bg-[#f7f8fc] min-h-screen">
+    <div className="flex flex-col w-full p-6 space-y-6 bg-[#f7f8fc] min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

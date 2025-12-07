@@ -1,32 +1,31 @@
+// components/storage/FoldersSection.tsx - Updated with required onFolderClick
 "use client";
 
-import { ChevronDown, MoreVertical, Save, Edit2, Share2, Copy, Info, FolderOpen, Trash2 } from "lucide-react";
+import { ChevronDown, Folder } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "./Pagination";
-import { FolderItem as FolderItemType } from "@/types/storage";
+import { FoldersListRow } from "./FoldersListRow";
+import { EnhancedFolderItem } from "@/types/storage";
 import { ViewMode, ActionType, SortConfig } from "@/types/storage";
 import { useState, useEffect } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ActionMenu } from "./ActionMenu";
 
 interface FoldersSectionProps {
-  folders: FolderItemType[];
+  folders: EnhancedFolderItem[];
   viewMode: ViewMode;
   selectedItems: number[];
   onSelectItem: (id: number) => void;
   onSelectAll: (allIds: number[]) => void;
   onAction: (id: number, action: ActionType) => void;
+  onFolderClick: (folderId: number) => void; // Changed to required
   onSort: (key: string) => void;
   sortConfig: SortConfig;
   itemsPerPage?: number;
+  currentFolderId?: number | null;
+  workspaceId?: number | null;
 }
 
 export function FoldersSection({
@@ -36,9 +35,10 @@ export function FoldersSection({
   onSelectItem,
   onSelectAll,
   onAction,
+  onFolderClick,
   onSort,
   sortConfig,
-  itemsPerPage = 4,
+  itemsPerPage = 8,
 }: FoldersSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(folders.length / itemsPerPage);
@@ -51,20 +51,8 @@ export function FoldersSection({
   
   const currentPageFolders = getCurrentPageFolders();
   const allFolderIds = currentPageFolders.map(f => f.id);
-  const allSelected = currentPageFolders.length > 0 && currentPageFolders.every(f => selectedItems.includes(f.id));
-
-  const getSortIcon = (key: string) => {
-    if (!sortConfig || sortConfig.key !== key) {
-      return <ChevronDown className="ml-1 h-4 w-4 text-muted-foreground" />;
-    }
-    return (
-      <ChevronDown
-        className={`ml-1 h-4 w-4 transition-transform ${
-          sortConfig.direction === "ascending" ? "rotate-180" : ""
-        }`}
-      />
-    );
-  };
+  const allSelected = currentPageFolders.length > 0 && 
+    currentPageFolders.every(f => selectedItems.includes(f.id));
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -76,195 +64,207 @@ export function FoldersSection({
     }
   }, [folders.length, totalPages, currentPage]);
 
-  // Action menu items with icons from screenshot
-  const actionItems = [
-    { icon: <Save className="h-4 w-4" />, label: "Save as", action: "save-as" as ActionType },
-    { icon: <Edit2 className="h-4 w-4" />, label: "Rename", action: "rename" as ActionType },
-    { icon: <Share2 className="h-4 w-4" />, label: "Share", action: "share" as ActionType },
-    { icon: <Copy className="h-4 w-4" />, label: "Copy", action: "copy" as ActionType },
-    { icon: <Info className="h-4 w-4" />, label: "Info", action: "info" as ActionType },
-    { icon: <FolderOpen className="h-4 w-4" />, label: "Move", action: "move" as ActionType },
-    { icon: <Trash2 className="h-4 w-4" />, label: "Move to trash", action: "delete" as ActionType, destructive: true },
-  ];
-
-  if (viewMode === "list") {
+  // Grid View Card Component
+  const FolderGridCard = ({ folder }: { folder: EnhancedFolderItem }) => {
+    const isSelected = selectedItems.includes(folder.id);
+    const folderColor = folder.color || "#3b82f6";
+    
+    // Calculate total items in folder
+    const totalFiles = folder.fileIds?.length || 0;
+    const totalChildFolders = folder.childFolderIds?.length || 0;
+    const totalItems = totalFiles + totalChildFolders;
+    
     return (
-      <div className="mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-semibold tracking-tight">Folders</h2>
-          <span className="text-sm text-muted-foreground">{folders.length} items</span>
-        </div>
-
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[300px]">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={allSelected}
-                      onCheckedChange={() => onSelectAll(allFolderIds)}
-                    />
-                    <span>Name</span>
-                  </div>
-                </TableHead>
-                <TableHead>Owner</TableHead>
-                <TableHead>Shared Users</TableHead>
-                <TableHead>File Size</TableHead>
-                <TableHead>
-                  <Button
-                    variant="ghost"
-                    className="hover:bg-transparent p-0 h-auto"
-                    onClick={() => onSort("lastModified")}
-                  >
-                    Last Modified
-                    {getSortIcon("lastModified")}
-                  </Button>
-                </TableHead>
-                <TableHead>Last Opened</TableHead>
-                <TableHead>Inside Files</TableHead>
-                <TableHead className="w-[80px]">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {currentPageFolders.map((folder) => (
-                <TableRow key={folder.id} className="h-[60px]">
-                  <TableCell className="w-[300px]">
-                    <div className="flex items-center gap-3">
-                      <Checkbox
-                        checked={selectedItems.includes(folder.id)}
-                        onCheckedChange={() => onSelectItem(folder.id)}
-                      />
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                          </svg>
-                        </div>
-                        <span className="font-medium">{folder.name}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs">
-                        PC
-                      </div>
-                      <span>{folder.owner}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex -space-x-2">
-                      {folder.sharedWith > 0 ? (
-                        Array.from({ length: Math.min(folder.sharedWith, 3) }).map((_, i) => (
-                          <div key={i} className="w-6 h-6 bg-gray-300 rounded-full border-2 border-white"></div>
-                        ))
-                      ) : (
-                        <span className="text-sm text-gray-500">None</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{folder.size}</TableCell>
-                  <TableCell>{folder.lastModified}</TableCell>
-                  <TableCell>{folder.lastOpened}</TableCell>
-                  <TableCell>{folder.filesInside}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        {actionItems.map((item, index) => (
-                          <div key={item.action}>
-                            {/* Add separator before "Move to trash" (index 6) */}
-                            {index === 6 && <DropdownMenuSeparator />}
-                            <DropdownMenuItem
-                              onClick={() => onAction(folder.id, item.action)}
-                              className={`${item.destructive ? "text-red-600" : ""} ${index === 5 ? "border-b border-gray-200 pb-2 mb-2" : ""}`}
-                            >
-                              {item.icon}
-                              <span className="ml-2">{item.label}</span>
-                            </DropdownMenuItem>
-                          </div>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
-
-        {/* Show pagination only if we have more than 4 folders */}
-        {folders.length > itemsPerPage && (
-          <div className="mt-6">
-            <Pagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={handlePageChange} 
+      <div className="relative">
+        <Card 
+          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm aspect-square"
+          onClick={() => onFolderClick(folder.id)}
+        >
+          {/* Selection Checkbox */}
+          <div 
+            className="absolute top-3 left-3 z-10 hidden group-hover:block"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={() => onSelectItem(folder.id)}
+              className="h-4 w-4"
+              aria-label={`Select ${folder.name}`}
             />
           </div>
-        )}
+          
+          {/* Folder Icon with color */}
+          <Folder 
+            className="mx-auto h-24 w-24 mt-6" 
+            style={{ color: folderColor }}
+          />
+          
+          {/* Items count indicator */}
+          <div className="absolute bottom-3 left-3">
+            <div className="flex flex-col items-start">
+              <span className="text-md font-medium">{totalItems}</span>
+              {totalItems > 0 && (
+                <div className="text-xs text-muted-foreground flex gap-1">
+                  <span>{totalFiles}f</span>
+                  <span>{totalChildFolders}d</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+
+        <div className="flex items-center justify-between mt-2">
+          {/* Folder Name - clickable */}
+          <div className="text-center flex-1">
+            <h3 
+              className="font-medium text-sm truncate cursor-pointer hover:text-blue-600 hover:underline"
+              onClick={() => onFolderClick(folder.id)}
+            >
+              {folder.name}
+            </h3>
+          </div>
+          <ActionMenu
+            type="folder"
+            itemId={folder.id}
+            onAction={(action) => onAction(folder.id, action)}
+          />
+        </div>  
       </div>
     );
-  }
+  };
 
-  // Grid view
   return (
     <div className="mb-12">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold tracking-tight">Folders</h2>
         <span className="text-sm text-muted-foreground">{folders.length} items</span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {currentPageFolders.map((folder) => (
-          <Card key={folder.id} className="p-4 hover:shadow-sm transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                </svg>
+      {viewMode === "grid" ? (
+        <>
+          {/* Grid View */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {currentPageFolders.length > 0 ? (
+              currentPageFolders.map((folder) => (
+                <FolderGridCard key={folder.id} folder={folder} />
+              ))
+            ) : (
+              <div className="col-span-full h-40 flex items-center justify-center text-muted-foreground">
+                No folders found
               </div>
-              <Checkbox
-                checked={selectedItems.includes(folder.id)}
-                onCheckedChange={() => onSelectItem(folder.id)}
-              />
-            </div>
-            <h3 className="font-medium text-sm mb-1">{folder.name}</h3>
-            <p className="text-xs text-gray-500 mb-2">{folder.filesInside} files</p>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">{folder.size}</span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {actionItems.map((item, index) => (
-                    <div key={item.action}>
-                      {index === 6 && <DropdownMenuSeparator />}
-                      <DropdownMenuItem
-                        onClick={() => onAction(folder.id, item.action)}
-                        className={`${item.destructive ? "text-red-600" : ""} ${index === 5 ? "border-b border-gray-200 pb-2 mb-2" : ""}`}
+            )}
+          </div>
+        </>
+      ) : (
+        /* List View */
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-b bg-muted/50">
+                  <TableHead className="w-[250px] px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={allSelected}
+                        onCheckedChange={() => onSelectAll(allFolderIds)}
+                        aria-label="Select all folders"
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm font-medium">Name</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => onSort("name")}
                       >
-                        {item.icon}
-                        <span className="ml-2">{item.label}</span>
-                      </DropdownMenuItem>
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${
+                            sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
                     </div>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </Card>
-        ))}
-      </div>
+                  </TableHead>
+                  <TableHead className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium">Owner</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => onSort("owner")}
+                      >
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${
+                            sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-sm font-medium">Shared Users</TableHead>
+                  <TableHead className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium">File Size</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => onSort("size")}
+                      >
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${
+                            sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium">Last Modified</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => onSort("lastModified")}
+                      >
+                        <ChevronDown
+                          className={`h-3 w-3 transition-transform ${
+                            sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead className="px-4 py-3 text-sm font-medium">Last Opened</TableHead>
+                  <TableHead className="px-4 py-3 text-sm font-medium">Inside Items</TableHead>
+                  <TableHead className="px-4 py-3 text-sm font-medium">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentPageFolders.length > 0 ? (
+                  currentPageFolders.map((folder) => (
+                    <FoldersListRow
+                      key={folder.id}
+                      folder={folder}
+                      isSelected={selectedItems.includes(folder.id)}
+                      onSelect={onSelectItem}
+                      onAction={onAction}
+                      onFolderClick={onFolderClick}
+                    />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                      No folders found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+      )}
 
-      {/* Show pagination only if we have more than 4 folders */}
       {folders.length > itemsPerPage && (
         <div className="mt-6">
           <Pagination 

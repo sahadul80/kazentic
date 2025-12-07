@@ -1,28 +1,66 @@
 "use client"
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AudioLinesIcon, BellIcon, ChevronDownIcon, GripIcon, SearchIcon } from "lucide-react";
+import { AudioLinesIcon, BellIcon, ChevronDownIcon, GripIcon, SearchIcon, LogOut } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AppLogo } from "../dashboard/SVGs";
+import { mockUsers, mockWorkspaces, getWorkspaceById } from "@/data/mockStorageData";
+import { useRouter } from "next/navigation";
 
 export function Header() {
     const [showNewDialog, setShowNewDialog] = useState(false)
     const [showShareDialog, setShowShareDialog] = useState(false)
+    const [currentUser, setCurrentUser] = useState<typeof mockUsers[0] | null>(null)
+    const [currentWorkspace, setCurrentWorkspace] = useState<ReturnType<typeof getWorkspaceById> | null>(null)
+    const router = useRouter()
+
+    useEffect(() => {
+        // Get user and workspace from localStorage
+        const storedUser = localStorage.getItem("currentUser")
+        const storedWorkspaceId = localStorage.getItem("currentWorkspace")
+        
+        if (storedUser) {
+            setCurrentUser(JSON.parse(storedUser))
+        }
+        
+        if (storedWorkspaceId) {
+            const workspace = getWorkspaceById(parseInt(storedWorkspaceId))
+            setCurrentWorkspace(workspace)
+        }
+    }, [])
+
+    const handleSignOut = () => {
+        localStorage.removeItem("currentUser")
+        localStorage.removeItem("currentWorkspace")
+        router.push("/login")
+    }
+
+    const switchWorkspace = () => {
+        localStorage.removeItem("currentWorkspace")
+        router.refresh()
+    }
+
+    if (!currentUser) {
+        return null // Or loading state
+    }
+
     return (
         <>
         <header 
-            className="sticky top-0 z-10 flex items-center justify-between w-full h-[38px] px-2"
-            //style={{ background: 'linear-gradient(89.94deg, #111953 0.09%, #4157FE 100.9%)' }}
+            className="sticky top-0 z-10 flex items-center justify-between w-full h-[38px] px-2 bg-background border-b"
         >
-            <AppLogo/>
+            <div className="flex items-center gap-4">
+                <AppLogo/>
+            </div>
+            
             <div className="relative">
                 <ButtonGroup>
                     <Button variant="ghost" className="border-l border-t border-b">
@@ -34,6 +72,7 @@ export function Header() {
                     </Button>
                 </ButtonGroup>
             </div>
+            
             <div className="flex items-center justify-center">
                 <div className="relative">
                     <Button variant="ghost">
@@ -51,31 +90,48 @@ export function Header() {
                                 <div className="w-auto flex items-center gap-2">
                                     <div className="flex flex-row flex-wrap items-center">
                                         <Avatar className="h-6 w-6">
-                                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                                            <AvatarFallback>CN</AvatarFallback>
+                                            <AvatarFallback>
+                                                {currentUser.name.split(' ').map(n => n[0]).join('')}
+                                            </AvatarFallback>
                                         </Avatar>
                                     </div>
                                     <div className="relative flex flex-col items-start justify-start">
-                                        <span className="text-sm font-bold">John Doe</span>
-                                        <span className="text-xs">john@kazentic.com</span>
+                                        <span className="text-sm font-bold">{currentUser.name}</span>
+                                        <span className="text-xs">{currentUser.email}</span>
                                     </div>
                                     <ChevronDownIcon/>
                                 </div>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-40" align="end">
+                        <DropdownMenuContent className="w-48" align="end">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
+                                    Profile Settings
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
+                                    Manage Workspaces
+                                </DropdownMenuItem>
+                            </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
                             <DropdownMenuLabel>File Actions</DropdownMenuLabel>
-                                <DropdownMenuGroup>
-                                    <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
-                                        New File...
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
-                                        Share...
-                                    </DropdownMenuItem>
+                            <DropdownMenuGroup>
+                                <DropdownMenuItem onSelect={() => setShowNewDialog(true)}>
+                                    New File...
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
+                                    Share...
+                                </DropdownMenuItem>
                                 <DropdownMenuItem disabled>Download</DropdownMenuItem>
                             </DropdownMenuGroup>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onSelect={handleSignOut} className="text-destructive">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign out
+                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    
                     <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
@@ -98,6 +154,7 @@ export function Header() {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+                    
                     <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
