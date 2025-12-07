@@ -1,4 +1,3 @@
-// app/storage/folder/[folderId]/page.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -149,7 +148,8 @@ export default function FolderPage() {
     const selectedFiles = folderItems.files.filter(f => selectedItems.includes(f.id));
     const selectedAllItems = allItems.filter(item => selectedItems.includes(item.id));
     
-    const totalSize = selectedFolders.reduce((sum, folder) => {
+    // Calculate total size in MB
+    const totalSizeMB = selectedFolders.reduce((sum, folder) => {
       const sizeNum = parseFloat(folder.size.replace(/[^0-9.]/g, ''));
       return sum + (isNaN(sizeNum) ? 0 : sizeNum);
     }, 0) + selectedFiles.reduce((sum, file) => {
@@ -159,7 +159,8 @@ export default function FolderPage() {
     
     return {
       count: selectedItems.length,
-      size: `${Math.round(totalSize)}MB`,
+      size: `${Math.round(totalSizeMB)}MB`,
+      totalSizeMB: totalSizeMB,
       folders: selectedFolders.length,
       files: selectedFiles.length,
       items: selectedAllItems,
@@ -212,13 +213,6 @@ export default function FolderPage() {
       
       // Info
       selectedInfo={selectedInfo}
-      storageInfo={{
-        total: 0,
-        usedPercentage: 0,
-        folders: folderStats.totalFolders,
-        files: folderStats.totalFiles,
-        shared: 0
-      }}
       
       // Customization
       storageType="folder"
