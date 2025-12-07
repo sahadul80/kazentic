@@ -176,49 +176,51 @@ export default function FolderPage() {
   }, [folderItems]);
 
   return (
-    <BaseStorageLayout
-      // Data
-      folders={filteredFolders}
-      files={filteredFiles}
-      filteredFolders={filteredFolders}
-      filteredFiles={filteredFiles}
-      
-      // State
-      viewMode={viewMode}
-      selectedItems={selectedItems}
-      filters={filters}
-      sortConfig={sortConfig}
-      hasActiveFilters={hasActiveFilters}
-      
-      // Folder Navigation
-      currentFolderId={folderId}
-      currentFolder={currentFolder}
-      breadcrumbs={breadcrumbs}
-      
-      // Callbacks
-      onViewModeChange={setViewMode}
-      onSearch={(query) => updateFilter("search", query)}
-      onAddNew={handleAddNew}
-      onFilterChange={updateFilter}
-      onClearFilters={clearFilters}
-      onSort={handleSort}
-      onItemAction={handleItemActionWithNavigation}
-      onBulkAction={(action) => handleBulkAction(action, selectedItems)}
-      onSelectItem={toggleItemSelection}
-      onSelectAll={selectAll}
-      onClearSelection={clearSelection}
-      onFolderClick={handleFolderClick}
-      onGoBack={handleGoBack}
-      onNavigateToFolder={handleNavigateToFolder}
-      
-      // Info
-      selectedInfo={selectedInfo}
-      
-      // Customization
-      storageType="folder"
-      showProgressBar={false}
-      showFolderNavigation={true}
-      showBreadcrumbs={true}
-    />
+    <div className="flex flex-col w-6xl mx-auto">
+      <BaseStorageLayout
+        // Data
+        folders={filteredFolders}
+        files={filteredFiles}
+        filteredFolders={filteredFolders}
+        filteredFiles={filteredFiles}
+        
+        // State
+        viewMode={viewMode}
+        selectedItems={selectedItems}
+        filters={filters}
+        sortConfig={sortConfig}
+        hasActiveFilters={hasActiveFilters}
+        
+        // Folder Navigation
+        currentFolderId={folderId}
+        currentFolder={currentFolder}
+        breadcrumbs={breadcrumbs}
+        
+        // Callbacks
+        onViewModeChange={setViewMode}
+        onSearch={(query) => updateFilter("search", query)}
+        onAddNew={handleAddNew}
+        onFilterChange={updateFilter}
+        onClearFilters={clearFilters}
+        onSort={handleSort}
+        onItemAction={handleItemActionWithNavigation}
+        onBulkAction={(action) => handleBulkAction(action, selectedItems)}
+        onSelectItem={toggleItemSelection}
+        onSelectAll={selectAll}
+        onClearSelection={clearSelection}
+        onFolderClick={handleFolderClick}
+        onGoBack={handleGoBack}
+        onNavigateToFolder={handleNavigateToFolder}
+        
+        // Info
+        selectedInfo={selectedInfo}
+        
+        // Customization
+        storageType="folder"
+        showProgressBar={false}
+        showFolderNavigation={true}
+        showBreadcrumbs={true}
+      />
+    </div>
   );
 }

@@ -94,15 +94,15 @@ export function FiltersBar({
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         {/* Left side: Filter dropdowns (only show when no items are selected) */}
         {selectedCount === 0 && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-4 w-[628px] h-[32px]">
             <Select
               value={filters.category || "all"}
               onValueChange={(value) => onFilterChange("category", value)}
             >
-              <SelectTrigger className="w-32 h-9">
+              <SelectTrigger>
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
@@ -182,9 +182,9 @@ export function FiltersBar({
         {/* Right side: Selection info + Action buttons or Add New + View toggle */}
         <div className="flex items-center gap-4">
           {selectedCount > 0 ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-[628px] h-[32px]">
               {/* Selection Info */}
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center text-sm">
                 <span className="font-medium">{selectedCount} Selected</span>
                 <span>·</span>
                 <span>{selectedSize}</span>

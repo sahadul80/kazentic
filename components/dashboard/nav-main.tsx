@@ -110,7 +110,7 @@ export function NavMain({
 
                     <span className={cn(
                       "transition-all duration-200",
-                      state === "expanded" ? "opacity-100 w-auto ml-2" : "opacity-0 w-0"
+                      state === "expanded" ? "opacity-100 w-auto" : "opacity-0 w-0"
                     )}>
                       {item.title}
                     </span>
@@ -129,7 +129,7 @@ export function NavMain({
                           }
                         }}
                         className={cn(
-                          "ml-auto flex items-center justify-center px-1 hover:bg-muted rounded-md",
+                          "ml-auto flex items-center justify-center hover:bg-muted rounded-md",
                           state === "collapsed" ? "opacity-100" : "opacity-100"
                         )}
                       >
@@ -148,7 +148,7 @@ export function NavMain({
                 {/* SUB ITEMS */}
                 {hasChildren && state === "expanded" && (
                   <CollapsibleContent>
-                    <SidebarMenuSub>
+                    <SidebarMenuSub className="border-none">
                       {item.items?.map((sub) => {
                         const subIsActive = pathname === sub.url
 
@@ -175,7 +175,7 @@ export function NavMain({
                                     size="18"
                                   />
                                 )}
-                                <span className="ml-2">{sub.title}</span>
+                                {sub.title}
                               </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>

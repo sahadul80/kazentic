@@ -242,19 +242,7 @@ export function BaseStorageLayout({
   };
 
   return (
-    <div className="px-10 flex flex-col h-full bg-background">
-      {/* Sticky Top Bar with Breadcrumb */}
-      <div className="sticky top-0 mx-auto min-w-[1184px] bg-background z-50 border-b">
-        <div className="h-[38px] flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {showBreadcrumbs && (
-              <AppBreadcrumb />
-            )}
-          </div>
-          <LucideMessageCircleQuestionMark/>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-full w-full">
       {/* Current Folder Info */}
       {currentFolder && showFolderNavigation && (
         <div className="bg-muted/30 border-b">

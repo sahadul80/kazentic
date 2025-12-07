@@ -77,7 +77,7 @@ export function FoldersSection({
     return (
       <div className="relative">
         <Card 
-          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm aspect-square"
+          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm"
           onClick={() => onFolderClick(folder.id)}
         >
           {/* Selection Checkbox */}
@@ -95,7 +95,7 @@ export function FoldersSection({
           
           {/* Folder Icon with color */}
           <Folder 
-            className="mx-auto h-24 w-24 mt-6" 
+            className="mx-auto h-24 w-24" 
             style={{ color: folderColor }}
           />
           
@@ -184,7 +184,7 @@ export function FoldersSection({
                       </Button>
                     </div>
                   </TableHead>
-                  <TableHead className="px-4 py-3">
+                  <TableHead className="p-2">
                     <div className="flex items-center gap-1">
                       <span className="text-sm font-medium">Owner</span>
                       <Button

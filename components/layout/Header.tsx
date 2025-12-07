@@ -55,7 +55,7 @@ export function Header() {
     return (
         <>
         <header 
-            className="sticky top-0 z-10 flex items-center justify-between w-full h-[38px] px-2 bg-background border-b"
+            className="fixed left-0 right-0 top-0 z-10 flex items-center justify-between w-full h-[38px] px-2 bg-background"
         >
             <div className="flex items-center gap-4">
                 <AppLogo/>
@@ -163,7 +163,7 @@ export function Header() {
                                     Anyone with the link will be able to view this file.
                                 </DialogDescription>
                             </DialogHeader>
-                            <FieldGroup className="py-3">
+                            <FieldGroup className="">
                                 <Field>
                                     <Label htmlFor="email">Email Address</Label>
                                     <Input

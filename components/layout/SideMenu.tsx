@@ -48,7 +48,7 @@ export function SideMenu() {
   }
 
   return (
-    <aside className="fixed top-[38px] w-[38px] h-[calc(100vh-38px)] flex flex-col justify-between items-center overflow-hidden">
+    <aside className="fixed left-0 top-[38px] w-[38px] h-[calc(100vh-38px)] flex flex-col justify-between items-center overflow-hidden block">
       {/* TOP PART */}
       <div className="flex flex-col items-center">
         {/* Workspace Avatar with Dropdown */}

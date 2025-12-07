@@ -11,7 +11,7 @@ import { SideMenu } from "@/components/layout/SideMenu"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { WorkspaceSelection } from "@/components/Workspace"
 import { Loader2 } from "lucide-react"
-import { mockUsers, getWorkspaceById } from "@/data/mockStorageData"
+import { mockUsers } from "@/data/mockStorageData"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -70,16 +70,16 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen">
+      <div className="min-h-screen min-w-screen">
         <Header />
         <div className="flex">
           <SideMenu />
-          <div className="flex-1 pl-[38px] pt-[38px]">
+          <div className="flex-1">
             <NavigationProvider>
               <SidebarProvider>
                 <div className="flex h-[calc(100vh-38px)]">
                   <AppSidebar />
-                  <main className="flex-1 overflow-auto p-6">
+                  <main className="flex-1 w-screen">
                     {children}
                   </main>
                 </div>

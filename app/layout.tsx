@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="w-[1440px] mx-auto"
+        className="min-h-screen min-w-screen bg-background"
       >
         {children}
       </body>

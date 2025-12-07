@@ -10,7 +10,7 @@ import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
 import { SideMenu } from "@/components/layout/SideMenu"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { WorkspaceSelection } from "@/components/Workspace"
-import { Loader2 } from "lucide-react"
+import { Loader2, LucideMessageCircleQuestionMark } from "lucide-react"
 import { mockUsers, getWorkspaceById } from "@/data/mockStorageData"
 import { AppBreadcrumb } from "@/components/dashboard/app-breadcrumb"
 
@@ -71,24 +71,24 @@ export default function StoorageLayout({ children }: DashboardLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen">
         <Header />
           <SideMenu />
-          
+            <div className="flex h-[calc(100vh-38px)] w-screen rounded-lg">
             <NavigationProvider>
-              
               <SidebarProvider>
-                <div className="flex h-[calc(100vh-38px)]">
                   <AppSidebar />
-                  <main className="flex-1 overflow-auto">
+                  <div className="flex-1 mx-auto">
+                  <div className="sticky top-[38px] h-[36px] bg-background border-b flex items-center justify-between mx-auto px-16">
+                    <AppBreadcrumb />
+                    <LucideMessageCircleQuestionMark/>
+                  </div>
+                  <div className="flex flex-col h-full w-7xl">
                     {children}
-                  </main>
-                </div>
+                  </div>
+                  </div>
               </SidebarProvider>
-              
             </NavigationProvider>
-          
-        </div>
+            </div>
     </ProtectedRoute>
   )
 }

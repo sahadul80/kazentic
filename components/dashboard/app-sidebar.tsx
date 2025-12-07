@@ -117,7 +117,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
     <Sidebar 
       collapsible="icon" 
       {...props} 
-      className="left-[168px] top-[38px] w-[218px] h-[calc(100vh-38px)] rounded-lg mx-auto"
+      className="left-[38px] top-[38px] h-[calc(100vh-38px)] w-[218px] mx-auto"
     >
       <SidebarHeader className="h-[36px] flex items-center border-b">
         <div className="flex items-center justify-between w-full h-auto">
@@ -156,14 +156,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
       
       {!isCollapsed && showUpgradeCard && (
         <SidebarFooter>
-          <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-700/30 rounded-lg p-3 relative overflow-hidden">
-            {/* Background pattern */}
-            <div className="absolute top-0 right-0 w-16 h-16 opacity-10">
-              <div className="absolute top-0 right-0 w-8 h-8 rounded-full bg-blue-500"></div>
-              <div className="absolute bottom-0 left-0 w-6 h-6 rounded-full bg-purple-500"></div>
-            </div>
-            
-            {/* Close button */}
+          <div className="bg-gradient-to-br from-blue-500/10 to-white-500/10 border border-blue-200/50 dark:border-blue-700/30 rounded-lg p-3 relative overflow-hidden">
             <Button
               size="icon"
               variant="ghost"
@@ -172,8 +165,6 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
             >
               <X className="h-3 w-3" />
             </Button>
-            
-            {/* Content */}
             <div className="relative z-10">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
