@@ -7,6 +7,7 @@ import { ActionMenu } from "./ActionMenu";
 import { EnhancedFolderItem, ActionType } from "@/types/storage";
 import { Folder } from "lucide-react";
 import { TableCell, TableRow } from "../ui/table";
+import { FolderIcon } from "../dashboard/SVGs";
 
 interface FoldersListRowProps {
   folder: EnhancedFolderItem;
@@ -43,9 +44,9 @@ export function FoldersListRow({
   const totalItems = totalFiles + totalChildFolders;
   
   return (
-    <TableRow className="border-b hover:bg-muted/50 h-[60px]">
-      <TableCell className="px-4 py-3">
-        <div className="flex items-center gap-3">
+    <TableRow className="border-bs hover:bg-muted/50 h-[45px]">
+      <TableCell>
+        <div className="flex items-center">
           <Checkbox
             checked={isSelected}
             onCheckedChange={(checked) => {
@@ -57,13 +58,13 @@ export function FoldersListRow({
             onClick={(e) => e.stopPropagation()}
           />
           <div 
-            className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-blue-200"
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
             onClick={() => onFolderClick(folder.id)}
           >
-            <Folder className="h-4 w-4 text-blue-600" />
+            <FolderIcon/>
           </div>
           <span 
-            className="font-medium text-sm cursor-pointer hover:text-blue-600 hover:underline"
+            className="font-medium text-sm cursor-pointer"
             onClick={() => onFolderClick(folder.id)}
           >
             {folder.name}
@@ -84,14 +85,14 @@ export function FoldersListRow({
         {(folder.sharedWithIds?.length || 0) > 0 ? (
           <div className="flex -space-x-2">
             {sharedUsers.map((user, index) => (
-              <Avatar key={index} className="border-2 border-background h-6 w-6">
+              <Avatar key={index} className="border-fs h-6 w-6">
                 <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                   {user.initials}
                 </AvatarFallback>
               </Avatar>
             ))}
             {(folder.sharedWithIds?.length || 0) > 3 && (
-              <div className="h-6 w-6 rounded-full bg-gray-200 border-2 border-background flex items-center justify-center">
+              <div className="h-6 w-6 rounded-full bg-gray-200 border-fs flex items-center justify-center">
                 <span className="text-xs">+{folder.sharedWithIds?folder.sharedWithIds.length - 3:null}</span>
               </div>
             )}

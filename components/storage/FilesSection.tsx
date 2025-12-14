@@ -36,7 +36,7 @@ export function FilesSection({
   onAction,
   onSort,
   sortConfig,
-  itemsPerPage = 8,
+  itemsPerPage = viewMode === 'grid' ? 8 : 4,
 }: FilesSectionProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(files.length / itemsPerPage);
@@ -104,9 +104,9 @@ export function FilesSection({
     const fileType = file.fileType.toUpperCase();
     
     return (
-      <div className="relative">
+      <div className="relative group">
         <Card 
-          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm"
+          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm border-fs max-h-[150px] max-w-[150px]"
           onClick={() => onAction(file.id, "open")}
         >
           {/* Selection Checkbox */}
@@ -123,15 +123,15 @@ export function FilesSection({
           </div>
           
           {/* File Icon with file type indicator */}
-          <div className="flex flex-col items-center justify-center h-full">
+          <div className="flex items-center justify-around max-h-[150px] max-w-[150px]">
             <div className="relative mb-2">
               <File 
-                className="mx-auto h-24 w-24" 
+                className="mx-auto h-[70px] w-[70px]" 
                 style={{ color: fileColor }}
               />
               {/* File type indicator */}
               <div 
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white border rounded-full px-3 py-1 text-xs font-medium"
+                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white border-fs rounded-full text-xs font-medium"
                 style={{ borderColor: fileColor }}
               >
                 {fileType}
@@ -142,188 +142,189 @@ export function FilesSection({
             <div className="absolute bottom-3 left-3">
               <div className="flex flex-col items-start">
                 <span className="text-md font-medium">{file.size}</span>
-                <span className="text-xs text-muted-foreground">Size</span>
               </div>
             </div>
           </div>
         </Card>
-
-        <div className="flex items-center justify-between mt-2">
-          {/* File Name - clickable */}
-          <div className="text-center flex-1">
-            <h3 
-              className="font-medium text-sm truncate cursor-pointer hover:text-blue-600 hover:underline"
+        <div className="flex items-center justify-between max-w-[150px] min-h-[20px] p-[12px]">
+          {/* Folder Name - clickable */}
+          <div className="text-center flex-1 min-w-0">
+            <span 
+              className="text-sm truncate block max-w-[120px]"
               onClick={() => onAction(file.id, "open")}
             >
               {file.name}
-            </h3>
+            </span>
           </div>
-          <ActionMenu
-            type="file"
-            itemId={file.id}
-            onAction={(action) => onAction(file.id, action)}
-          />
-        </div>  
+          <div className="opacity-0 group-hover:cursor-pointer group-hover:opacity-100 max-w-[20px] max-h-[20px]">
+            <ActionMenu
+              type="file"
+              itemId={file.id}
+              onAction={(action) => onAction(file.id, action)}
+            />
+          </div>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="mb-12">
-      <div className="flex items-center justify-between mb-6">
+    <div>
+      <div className="flex items-center justify-between p-[12px]">
         <h2 className="text-2xl font-semibold tracking-tight">Files</h2>
         <span className="text-sm text-muted-foreground">{files.length} items</span>
       </div>
-
-      {viewMode === "grid" ? (
-        <>
-          {/* Grid View */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            {currentPageFiles.length > 0 ? (
-              currentPageFiles.map((file) => (
-                <FileGridCard key={file.id} file={file} />
-              ))
-            ) : (
-              <div className="col-span-full h-40 flex items-center justify-center text-muted-foreground">
-                No files found
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        /* List View */
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b bg-muted/50">
-                  <TableHead className="w-[250px] px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={allSelected}
-                        onCheckedChange={() => onSelectAll(allFileIds)}
-                        aria-label="Select all files"
-                        className="h-4 w-4"
-                      />
-                      <span className="text-sm font-medium">Name</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => onSort("name")}
-                      >
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                          }`}
+      <div className="border-fs rounded-lg">
+        {viewMode === "grid" ? (
+          <>
+            {/* Grid View */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-[8px]">
+              {currentPageFiles.length > 0 ? (
+                currentPageFiles.map((file) => (
+                  <FileGridCard key={file.id} file={file} />
+                ))
+              ) : (
+                <div className="col-span-full h-40 flex items-center justify-center text-muted-foreground">
+                  No files found
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          /* List View */
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-bs bg-[#F4F5F6] h-[32px]">
+                    <TableHead className="w-[250px]">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={allSelected}
+                          onCheckedChange={() => onSelectAll(allFileIds)}
+                          aria-label="Select all files"
+                          className="h-4 w-4"
                         />
-                      </Button>
-                    </div>
-                  </TableHead>
-                  <TableHead className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium">Owner</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => onSort("owner")}
-                      >
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </Button>
-                    </div>
-                  </TableHead>
-                  <TableHead className="px-4 py-3 text-sm font-medium">Shared Users</TableHead>
-                  <TableHead className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium">File Size</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => onSort("size")}
-                      >
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </Button>
-                    </div>
-                  </TableHead>
-                  <TableHead className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium">Last Modified</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => onSort("lastModified")}
-                      >
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </Button>
-                    </div>
-                  </TableHead>
-                  <TableHead className="px-4 py-3 text-sm font-medium">Last Opened</TableHead>
-                  <TableHead className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium">File Type</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => onSort("fileType")}
-                      >
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${
-                            sortConfig?.key === "fileType" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                          }`}
-                        />
-                      </Button>
-                    </div>
-                  </TableHead>
-                  <TableHead className="px-4 py-3 text-sm font-medium">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {currentPageFiles.length > 0 ? (
-                  currentPageFiles.map((file) => (
-                    <FilesListRow
-                      key={file.id}
-                      file={file}
-                      isSelected={selectedItems.includes(file.id)}
-                      onSelect={onSelectItem}
-                      onAction={onAction}
-                    />
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                      No files found
-                    </TableCell>
+                        <span className="text-sm font-medium">Name</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => onSort("name")}
+                        >
+                          <ChevronDown
+                            className={`h-3 w-3 transition-transform ${
+                              sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">Owner</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => onSort("owner")}
+                        >
+                          <ChevronDown
+                            className={`h-3 w-3 transition-transform ${
+                              sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-sm font-medium">Shared Users</TableHead>
+                    <TableHead className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">File Size</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => onSort("size")}
+                        >
+                          <ChevronDown
+                            className={`h-3 w-3 transition-transform ${
+                              sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">Last Modified</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => onSort("lastModified")}
+                        >
+                          <ChevronDown
+                            className={`h-3 w-3 transition-transform ${
+                              sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-sm font-medium">Last Opened</TableHead>
+                    <TableHead className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">File Type</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => onSort("fileType")}
+                        >
+                          <ChevronDown
+                            className={`h-3 w-3 transition-transform ${
+                              sortConfig?.key === "fileType" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-sm font-medium">Action</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-      )}
+                </TableHeader>
+                <TableBody>
+                  {currentPageFiles.length > 0 ? (
+                    currentPageFiles.map((file) => (
+                      <FilesListRow
+                        key={file.id}
+                        file={file}
+                        isSelected={selectedItems.includes(file.id)}
+                        onSelect={onSelectItem}
+                        onAction={onAction}
+                      />
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                        No files found
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+        )}
 
-      {files.length > itemsPerPage && (
-        <div className="mt-6">
-          <Pagination 
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            onPageChange={handlePageChange} 
-          />
-        </div>
-      )}
+        {files.length > itemsPerPage && (
+          <div className="flex items-center justify-around p-[12px]">
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={handlePageChange} 
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

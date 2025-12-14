@@ -13,42 +13,81 @@ export function SideMenu() {
   const [currentWorkspace, setCurrentWorkspace] = useState<ReturnType<typeof getWorkspaceById> | null>(null)
   const [workspaceMembers, setWorkspaceMembers] = useState<typeof mockUsers>([])
   const [availableWorkspaces, setAvailableWorkspaces] = useState<typeof mockWorkspaces>([])
+  const [currentUser, setCurrentUser] = useState<typeof mockUsers[0] | null>(null)
 
   useEffect(() => {
-    const storedWorkspaceId = localStorage.getItem("currentWorkspace")
-    const storedUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
-    
-    if (storedUser) {
-      const user = JSON.parse(storedUser)
+    try {
+      // Get current user
+      const storedUserStr = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
       
-      // Get user's available workspaces
-      const userWorkspaces = mockWorkspaces.filter(workspace => 
-        workspace.ownerId === user.id || workspace.memberIds.includes(user.id)
-      )
-      setAvailableWorkspaces(userWorkspaces)
-    }
-    
-    if (storedWorkspaceId) {
-      const workspace = getWorkspaceById(parseInt(storedWorkspaceId))
+      if (storedUserStr) {
+        const user = JSON.parse(storedUserStr)
+        setCurrentUser(user)
+        
+        // Get user's available workspaces
+        if (user && user.id) {
+          const userWorkspaces = mockWorkspaces.filter(workspace => 
+            workspace.ownerId === user.id || workspace.memberIds?.includes(user.id)
+          )
+          setAvailableWorkspaces(userWorkspaces)
+        }
+      }
+      
+      // Get current workspace (try object first, then ID)
+      let workspace = null
+      const storedWorkspaceStr = localStorage.getItem("currentWorkspace")
+      
+      if (storedWorkspaceStr) {
+        try {
+          workspace = JSON.parse(storedWorkspaceStr)
+        } catch (e) {
+          // If parsing fails, try to get by ID
+          const workspaceId = parseInt(storedWorkspaceStr)
+          if (!isNaN(workspaceId)) {
+            workspace = getWorkspaceById(workspaceId)
+          }
+        }
+      } else {
+        // Try getting by workspace ID
+        const storedWorkspaceId = localStorage.getItem("currentWorkspaceId")
+        if (storedWorkspaceId) {
+          const workspaceId = parseInt(storedWorkspaceId)
+          if (!isNaN(workspaceId)) {
+            workspace = getWorkspaceById(workspaceId)
+          }
+        }
+      }
+      
       setCurrentWorkspace(workspace)
       
       if (workspace) {
         // Get workspace members
         const members = mockUsers.filter(user => 
-          workspace.memberIds.includes(user.id)
+          workspace.memberIds?.includes(user.id)
         )
         setWorkspaceMembers(members)
       }
+    } catch (error) {
+      console.error("Error loading sidebar data:", error)
+      // Clear invalid data
+      localStorage.removeItem("currentUser")
+      localStorage.removeItem("currentWorkspace")
+      localStorage.removeItem("currentWorkspaceId")
+      sessionStorage.removeItem("currentUser")
     }
   }, [])
 
   const switchWorkspace = (workspaceId: number) => {
-    localStorage.setItem("currentWorkspace", workspaceId.toString())
-    window.location.reload()
+    const workspace = getWorkspaceById(workspaceId)
+    if (workspace) {
+      localStorage.setItem("currentWorkspaceId", workspaceId.toString())
+      localStorage.setItem("currentWorkspace", JSON.stringify(workspace))
+      window.location.reload()
+    }
   }
 
   return (
-    <aside className="fixed left-0 top-[38px] w-[38px] h-[calc(100vh-38px)] flex flex-col justify-between items-center overflow-hidden block">
+    <aside className="fixed left-0 top-[38px] w-[38px] h-[calc(100vh-38px)] flex flex-col justify-between items-center overflow-hidden text-white">
       {/* TOP PART */}
       <div className="flex flex-col items-center">
         {/* Workspace Avatar with Dropdown */}
@@ -77,7 +116,7 @@ export function SideMenu() {
               </Tooltip>
             </TooltipProvider>
             
-            <DropdownMenuContent align="start" className="w-56" side="right">
+            <DropdownMenuContent align="start" className="w-auto h-auto bg-white" side="right">
               <DropdownMenuLabel>My Workspaces</DropdownMenuLabel>
               {availableWorkspaces.map((workspace) => {
                 const owner = mockUsers.find(u => u.id === workspace.ownerId)
@@ -129,7 +168,7 @@ export function SideMenu() {
           {/* Current workspace indicator dot */}
           {currentWorkspace && (
             <div 
-              className="absolute top-1/5 -left-6 w-4 h-4 rounded-full border border-background"
+              className="absolute top-1/5 -left-6 w-4 h-4 rounded-full border"
               style={{ backgroundColor: currentWorkspace.color }}
             />
           )}

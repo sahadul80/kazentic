@@ -77,12 +77,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <NavigationProvider>
           <SidebarProvider>
             <AppSidebar />
-            <div className="flex-1 mx-auto">
-              <div className="sticky top-[38px] h-[36px] bg-background border-b flex items-center justify-between mx-auto px-16">
+            <div className="flex-1">
+              <div className="sticky top-[38px] h-[36px] border-b flex items-center justify-between">
                 <AppBreadcrumb />
                 <LucideMessageCircleQuestionMark/>
               </div>
-              <div className="flex flex-col h-full max-w-7xl">
+              <div className="flex flex-col h-full w-auto">
                 {children}
               </div>
             </div>

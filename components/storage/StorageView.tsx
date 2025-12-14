@@ -16,14 +16,13 @@ import {
   mockFolders, 
   mockFiles,
   mockWorkspaces,
-  getUserById 
 } from "@/data/mockStorageData";
 
 // Types
 import { ViewMode, ActionType, EnhancedFileItem, EnhancedFolderItem } from "@/types/storage";
 
 // Interfaces for localStorage data
-interface UserData {
+export interface UserData {
   id: number;
   name: string;
   email: string;
@@ -33,13 +32,14 @@ interface UserData {
 
 export function StorageView() {
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [folders, setFolders] = useState<EnhancedFolderItem[]>(mockFolders);
   const [files, setFiles] = useState<EnhancedFileItem[]>(mockFiles);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<UserData | null>(null);
   const [userWorkspaces, setUserWorkspaces] = useState(mockWorkspaces);
   const [isInfoSidebarOpen, setIsInfoSidebarOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Get selectedWorkspace from localStorage
   const [selectedWorkspace, setSelectedWorkspaceState] = useState<number | null>(null);
@@ -48,8 +48,14 @@ export function StorageView() {
   useEffect(() => {
     const workspaceStr = localStorage.getItem('selectedWorkspace');
     if (workspaceStr) {
-      const workspace = JSON.parse(workspaceStr);
-      setSelectedWorkspaceState(workspace);
+      try {
+        const workspace = JSON.parse(workspaceStr);
+        setSelectedWorkspaceState(workspace);
+      } catch (parseError) {
+        console.error("Error parsing workspace from localStorage:", parseError);
+        setError("Failed to load workspace data. Please try again.");
+        setSelectedWorkspaceState(null);
+      }
     } else {
       // Default to null (all workspaces)
       setSelectedWorkspaceState(null);
@@ -59,79 +65,59 @@ export function StorageView() {
   // Write to localStorage whenever selectedWorkspace changes
   const setSelectedWorkspace = useCallback((workspaceId: number | null) => {
     setSelectedWorkspaceState(workspaceId);
-    localStorage.setItem('selectedWorkspace', JSON.stringify(workspaceId));
+    try {
+      localStorage.setItem('selectedWorkspace', JSON.stringify(workspaceId));
+    } catch (storageError) {
+      console.error("Error saving workspace to localStorage:", storageError);
+      setError("Failed to save workspace selection. Please try again.");
+    }
   }, []);
 
   // Initialize user data from localStorage
   useEffect(() => {
     const initializeUserData = () => {
       setIsLoading(true);
+      setError(null);
+      
       try {
         // Get user data from localStorage (this would be set after login)
-        const userDataStr = localStorage.getItem('userData');
+        const userDataStr = localStorage.getItem('currentUser') || 
+                           sessionStorage.getItem('currentUser');
+        
+        if (!userDataStr) {
+          setError("Please log in to access your storage.");
+          setIsLoading(false);
+          return;
+        }
+
+        const userData: UserData = JSON.parse(userDataStr);
+        setCurrentUser(userData);
+        
+        // Get workspace data
         const workspaceDataStr = localStorage.getItem('workspaces');
         
-        if (userDataStr) {
-          const userData: UserData = JSON.parse(userDataStr);
-          setCurrentUser(userData);
-          
-          // If we have workspace data in localStorage, use it
-          if (workspaceDataStr) {
-            const workspaces = JSON.parse(workspaceDataStr);
-            setUserWorkspaces(workspaces);
-          } else {
-            // Fallback: Filter mock workspaces based on user's workspace IDs
-            const userWorkspaceIds = userData.workspaceIds || [];
-            const filteredWorkspaces = mockWorkspaces.filter(workspace => 
-              userWorkspaceIds.includes(workspace.id)
-            );
-            setUserWorkspaces(filteredWorkspaces);
-            
-            // Store in localStorage for future use
-            localStorage.setItem('workspaces', JSON.stringify(filteredWorkspaces));
-          }
-          
-          // If selectedWorkspace is not set, set default workspace to the first one if available
-          if (selectedWorkspace === null && userData.workspaceIds && userData.workspaceIds.length > 0) {
-            const defaultWorkspace = userData.workspaceIds[0];
-            setSelectedWorkspace(defaultWorkspace);
-          }
+        if (workspaceDataStr) {
+          const workspaces = JSON.parse(workspaceDataStr);
+          setUserWorkspaces(workspaces);
         } else {
-          // Fallback for development: Use mock user (Pat Cummins)
-          const fallbackUser: UserData = {
-            id: 1,
-            name: "Pat Cummins",
-            email: "pat@example.com",
-            role: "admin",
-            workspaceIds: [1, 2, 3] // All workspaces for demo
-          };
-          setCurrentUser(fallbackUser);
-          
-          // Set default workspace if not already set
-          if (selectedWorkspace === null) {
-            setSelectedWorkspace(1); // Default to first workspace
-          }
-          
-          // Store in localStorage for consistency
-          localStorage.setItem('userData', JSON.stringify(fallbackUser));
-          localStorage.setItem('workspaces', JSON.stringify(mockWorkspaces));
+          // If no workspace data in localStorage, use all mock workspaces for now
+          // In a real app, this would be an API call
+          setUserWorkspaces(mockWorkspaces);
+        }
+        
+        // If selectedWorkspace is not set, set default workspace to the first one if available
+        if (selectedWorkspace === null && userData.workspaceIds && userData.workspaceIds.length > 0) {
+          const defaultWorkspace = userData.workspaceIds[0];
+          setSelectedWorkspace(defaultWorkspace);
         }
       } catch (error) {
         console.error("Error initializing user data:", error);
+        setError("Failed to load user data. Please try refreshing the page or log in again.");
         
-        // Fallback to mock data
-        const fallbackUser: UserData = {
-          id: 1,
-          name: "Pat Cummins",
-          email: "pat@example.com",
-          role: "admin",
-          workspaceIds: [1, 2, 3]
-        };
-        setCurrentUser(fallbackUser);
-        
-        if (selectedWorkspace === null) {
-          setSelectedWorkspace(1);
-        }
+        // Clear potentially corrupted data
+        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('currentUser');
+        localStorage.removeItem('workspaces');
       } finally {
         setIsLoading(false);
       }
@@ -218,18 +204,6 @@ export function StorageView() {
     return { folders: visibleFolders, files: visibleFiles };
   }, [getItemsForView]);
 
-  // Debug log
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("Current user:", currentUser);
-      console.log("User workspaces:", userWorkspaces);
-      console.log("Selected workspace:", selectedWorkspace);
-      console.log("Visible folders count:", visibleItems.folders.length);
-      console.log("Visible files count:", visibleItems.files.length);
-      console.log("Sample visible files:", visibleItems.files.slice(0, 3));
-    }
-  }, [visibleItems, selectedWorkspace, userWorkspaces, currentUser, isLoading]);
-
   // Data filtering
   const { filteredFolders = [], filteredFiles = [] } = useStorageData({
     folders: visibleItems.folders,
@@ -248,6 +222,7 @@ export function StorageView() {
   // Handle folder click
   const handleFolderClick = useCallback((folderId: number) => {
     router.push(`/storage/my/folder/${folderId}`);
+    console.log(`Opening folder: ${folderId}`);
   }, [router]);
 
   // Enhanced item action handler
@@ -375,7 +350,7 @@ const selectedInfo = useMemo(() => {
     if (!currentUser) return null;
 
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex items-center">
         <div className="text-sm font-medium">View:</div>
         <div className="flex items-center gap-2">
           <button
@@ -426,16 +401,47 @@ const selectedInfo = useMemo(() => {
     );
   }
 
+  // If error, show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Storage</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Refresh Page
+            </button>
+            <button
+              onClick={() => router.push('/login')}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // If no user data, show error
   if (!currentUser) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Error</h2>
-          <p className="text-gray-600 mb-4">Please log in to access your storage.</p>
+        <div className="text-center max-w-md mx-auto p-6">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-6">Please log in to access your storage.</p>
           <button
             onClick={() => router.push('/login')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             Go to Login
           </button>
@@ -445,8 +451,7 @@ const selectedInfo = useMemo(() => {
   }
 
   return (
-    <>
-      <div className="relative">
+      <div>
         <BaseStorageLayout
           // Data
           folders={folders}
@@ -501,7 +506,7 @@ const selectedInfo = useMemo(() => {
         />
         
         {/* Info Sidebar */}
-        <div className="fixed inset-y-0 right-0 z-50 flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-y-0 top-[75px] right-0 max-h-[calc(100vh-75px)] z-50 flex items-center justify-center pointer-events-none bg-white">
           <div className="relative">
             <InfoSidebar
               isOpen={isInfoSidebarOpen}
@@ -512,6 +517,5 @@ const selectedInfo = useMemo(() => {
           </div>
         </div>
       </div>
-    </>
   );
 }

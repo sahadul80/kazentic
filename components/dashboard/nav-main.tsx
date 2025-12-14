@@ -1,17 +1,18 @@
-// components/dashboard/nav-main.tsx
 "use client"
 
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 import {
   SidebarGroup,
@@ -25,6 +26,7 @@ import {
 
 import { useSidebar } from "@/components/ui/sidebar"
 import { NavItem, SubItem } from "@/components/dashboard/navigation-provider"
+import { Button } from "@/components/ui/button"
 
 interface NavMainProps {
   items: NavItem[];
@@ -38,157 +40,238 @@ export function NavMain({
   const pathname = usePathname()
   const router = useRouter()
   const { state } = useSidebar()
+  const [openItems, setOpenItems] = useState<string[]>([])
 
-  // Update context on initial load and when pathname changes
   useEffect(() => {
-    const findActiveItems = () => {
-      for (const item of items) {
-        if (pathname.startsWith(item.url)) {
-          const activeSubItem = item.items?.find(subItem => pathname === subItem.url)
-          if (onNavigationChange) {
+    const initialOpenItems: string[] = []
+    
+    items.forEach((item) => {
+      const isItemActive = item.url && pathname.startsWith(item.url)
+      const hasActiveChild = item.items?.some((subItem) => 
+        subItem.url && pathname.startsWith(subItem.url)
+      )
+      
+      if (isItemActive || hasActiveChild) {
+        initialOpenItems.push(item.title)
+
+        if (onNavigationChange) {
+          if (hasActiveChild) {
+            const activeSubItem = item.items?.find(sub => 
+              sub.url && pathname.startsWith(sub.url)
+            )
             onNavigationChange(item, activeSubItem)
+          } else {
+            onNavigationChange(item)
           }
-          break
         }
       }
-    }
+    })
     
-    findActiveItems()
+    setOpenItems(initialOpenItems)
   }, [pathname, items, onNavigationChange])
 
+  const isMainItemActive = (item: NavItem): boolean => {
+    if (pathname.startsWith(item.url)) return true
+    return item.items?.some(sub => 
+      sub.url && pathname.startsWith(sub.url)
+    ) || false
+  }
+
+  const isSubItemActive = (subItem: SubItem): boolean => {
+    return pathname.startsWith(subItem.url)
+  }
+
+  const toggleCollapsible = (itemTitle: string) => {
+    setOpenItems(prev =>
+      prev.includes(itemTitle)
+        ? prev.filter(t => t !== itemTitle)
+        : [...prev, itemTitle]
+    )
+  }
+
+  const isCollapsibleOpen = (itemTitle: string) => {
+    return openItems.includes(itemTitle)
+  }
+
+  const handleMainItemClick = (item: NavItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+
+    const hasChildren = item.items && item.items.length > 0
+    
+    if (!hasChildren && item.url) {
+      router.push(item.url)
+      onNavigationChange?.(item)
+    } else if (hasChildren && item.items?.[0]?.url) {
+      router.push(item.items[0].url)
+      onNavigationChange?.(item, item.items[0])
+    }
+  }
+
+  const handleSubItemClick = (mainItem: NavItem, subItem: SubItem) => {
+    if (subItem.url) {
+      router.push(subItem.url)
+      onNavigationChange?.(mainItem, subItem)
+    }
+  }
+
   return (
-    <SidebarGroup>
-      <SidebarMenu>
-        {items.map((item) => {
-          const hasChildren = item.items && item.items.length > 0
-          const parentActive = item.url && pathname.startsWith(item.url)
-          const childActive =
-            item.items?.some((s) => s.url && pathname === s.url) ?? false
-          const isActive = parentActive || childActive
-          const firstSub = item.items?.[0]
+    <TooltipProvider delayDuration={0}>
+      <SidebarGroup 
+        className={cn(
+          "transition-all duration-200 border-none",
+          state === "collapsed" && "opacity-100 p-0"
+        )}
+      >
+        <SidebarMenu>
+          {items.map((item) => {
+            const hasChildren = item.items && item.items.length > 0
+            const isActive = isMainItemActive(item)
+            const isOpen = isCollapsibleOpen(item.title)
+            if (state === "collapsed") {
+              return (
+                <div key={item.title} className="relative">
+                  <div className="flex flex-col items-center">
 
-          return (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={isActive}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                {/* MAIN BUTTON */}
-                <SidebarMenuButton
-                  asChild
-                  data-active={isActive ? "true" : undefined}
-                  className={cn(
-                    "relative group/sidebar-btn",
-                    isActive && "bg-accent text-accent-foreground"
-                  )}
-                >
-                  <div
-                    className="flex items-center w-full cursor-pointer select-none"
-                    onClick={() => {
-                      if (hasChildren && firstSub?.url) {
-                        // Navigate to first subitem
-                        router.push(firstSub.url)
-                        if (onNavigationChange) {
-                          onNavigationChange(item, firstSub)
-                        }
-                      } else if (item.url) {
-                        router.push(item.url)
-                        if (onNavigationChange) {
-                          onNavigationChange(item)
-                        }
-                      }
-                    }}
-                  >
-                    {item.icon && (
-                      <item.icon
-                        active={isActive}
-                        size="18"
-                      />
-                    )}
-
-                    <span className={cn(
-                      "transition-all duration-200",
-                      state === "expanded" ? "opacity-100 w-auto" : "opacity-0 w-0"
-                    )}>
-                      {item.title}
-                    </span>
-
-                    {/* CHEVRON */}
-                    {hasChildren && (
-                      <CollapsibleTrigger
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          // If sidebar is collapsed and has first subitem, navigate there
-                          if (state === "collapsed" && firstSub?.url) {
-                            router.push(firstSub.url)
-                            if (onNavigationChange) {
-                              onNavigationChange(item, firstSub)
-                            }
-                          }
-                        }}
+                    {/* MAIN ICON + CHEVRON */}
+                    <div className="flex flex-row items-center justify-between w-full">
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className={cn(
-                          "ml-auto flex items-center justify-center hover:bg-muted rounded-md",
-                          state === "collapsed" ? "opacity-100" : "opacity-100"
+                          "rounded-md flex items-center",
+                          isActive && "bg-[#F2F9FE]"
                         )}
+                        onClick={() => {
+                          if (!hasChildren) handleMainItemClick(item)
+                          toggleCollapsible(item.title)
+                        }}
                       >
+                        {item.icon && (
+                          <item.icon active={isActive} />
+                        )}
+                      </Button>
+
+                      {hasChildren && (
                         <ChevronDown
-                          size={16}
+                          size="16px"
                           className={cn(
-                            "transition-transform duration-200",
-                            "group-data-[state=open]/collapsible:rotate-180"
+                            "transition-transform duration-200 bg-white flex-shrink-0",
+                            isOpen && "rotate-180"
                           )}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            toggleCollapsible(item.title)
+                          }}
                         />
+                      )}
+                    </div>
+
+                    {/* SUB ICON STACK (aligned with chevron) */}
+                    {hasChildren && isOpen && (
+                      <div className="flex flex-col items-end">
+                        {item.items?.map((sub) => {
+                          const subIsActive = isSubItemActive(sub)
+                          return (
+                            <Button
+                              key={sub.title}
+                              variant="ghost"
+                              size="icon"
+                              className={cn(
+                                "rounded-md flex items-center justify-center",
+                                subIsActive && "bg-[#F2F9FE]"
+                              )}
+                              onClick={() => handleSubItemClick(item, sub)}
+                            >
+                              {sub.Icon && (
+                                <sub.Icon active={subIsActive}/>
+                              )}
+                            </Button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            }
+            return (
+              <Collapsible
+                key={item.title}
+                asChild
+                open={isOpen}
+                onOpenChange={() => toggleCollapsible(item.title)
+                }
+              >
+                <SidebarMenuItem>
+                  {/* MAIN BUTTON */}
+                  <div className="flex items-center">
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      className="group/main-button"
+                    >
+                      <div
+                        className="flex items-center cursor-pointer select-none hover:bg-[#F5F6F7] group-hover/main-button:bg-[#F5F6F7]"
+                        onClick={() => handleMainItemClick(item)}
+                      >
+                        {item.icon && (
+                          <item.icon active={isActive} size="18px" />
+                        )}
+                        <span className="flex-1 text-left">{item.title}</span>
+                      </div>
+                    </SidebarMenuButton>
+
+                    {/* EXPANDED CHEVRON */}
+                    {hasChildren && (
+                      <CollapsibleTrigger>
+                          <ChevronDown
+                            size="16px"
+                            className={cn(
+                              "transition-transform duration-200",
+                              isOpen && "rotate-180"
+                            )}
+                          />
                       </CollapsibleTrigger>
                     )}
                   </div>
-                </SidebarMenuButton>
 
-                {/* SUB ITEMS */}
-                {hasChildren && state === "expanded" && (
-                  <CollapsibleContent>
-                    <SidebarMenuSub className="border-none">
-                      {item.items?.map((sub) => {
-                        const subIsActive = pathname === sub.url
+                  {/* SUB ITEMS */}
+                  {hasChildren && (
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items?.map((sub) => {
+                          const subIsActive = isSubItemActive(sub)
+                          return (
+                            <SidebarMenuSubItem key={sub.title}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={subIsActive}
+                                className="border-none"
+                                onClick={() => handleSubItemClick(item, sub)}
+                              >
+                                <Link 
+                                  href={sub.url || "#"} 
+                                  className="flex hover:bg-[#F5F6F7] group-hover/sub-button:bg-[#F5F6F7]" 
+                                >
+                                  {sub.Icon && (
+                                    <sub.Icon active={subIsActive} size="16px" />
+                                  )}
+                                  <span>{sub.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  )}
 
-                        return (
-                          <SidebarMenuSubItem key={sub.title}>
-                            <SidebarMenuSubButton
-                              asChild
-                              data-active={subIsActive ? "true" : undefined}
-                              className={cn(
-                                "cursor-pointer",
-                                subIsActive &&
-                                  "text-primary font-medium bg-muted"
-                              )}
-                              onClick={() => {
-                                if (onNavigationChange) {
-                                  onNavigationChange(item, sub)
-                                }
-                              }}
-                            >
-                              <Link href={sub.url || "#"} className="flex items-center">
-                                {sub.Icon && (
-                                  <sub.Icon
-                                    active={subIsActive}
-                                    size="18"
-                                  />
-                                )}
-                                {sub.title}
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        )
-                      })}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                )}
-              </SidebarMenuItem>
-            </Collapsible>
-          )
-        })}
-      </SidebarMenu>
-    </SidebarGroup>
+                </SidebarMenuItem>
+              </Collapsible>
+            )
+          })}
+        </SidebarMenu>
+      </SidebarGroup>
+    </TooltipProvider>
   )
 }

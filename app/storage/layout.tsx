@@ -8,11 +8,12 @@ import { NavigationProvider } from "@/components/dashboard/navigation-provider"
 import { Header } from "@/components/layout/Header"
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute"
 import { SideMenu } from "@/components/layout/SideMenu"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { WorkspaceSelection } from "@/components/Workspace"
-import { Loader2, LucideMessageCircleQuestionMark } from "lucide-react"
-import { mockUsers, getWorkspaceById } from "@/data/mockStorageData"
+import { Loader2 } from "lucide-react"
+import { mockUsers } from "@/data/mockStorageData"
 import { AppBreadcrumb } from "@/components/dashboard/app-breadcrumb"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -73,22 +74,20 @@ export default function StoorageLayout({ children }: DashboardLayoutProps) {
     <ProtectedRoute>
       <Header />
       <SideMenu />
-      <div className="flex h-[calc(100vh-38px)] w-screen rounded-lg">
-        <NavigationProvider>
+        <ResizablePanelGroup direction="horizontal">
+
+      <NavigationProvider>
           <SidebarProvider>
-            <AppSidebar />
-            <div className="flex-1 mx-auto">
-              <div className="sticky top-[38px] h-[36px] bg-background border-b flex items-center justify-between mx-auto px-16">
-                <AppBreadcrumb />
-                <LucideMessageCircleQuestionMark/>
-              </div>
-              <div className="flex flex-col h-full max-w-7xl">
+  <ResizablePanel className="flex rounded-lg mt-[38px] ml-[38px] w-full bg-white">
+      <AppSidebar />
+            <div className="bg-white">
                 {children}
-              </div>
             </div>
-          </SidebarProvider>
-        </NavigationProvider>
-      </div>
+  </ResizablePanel>
+  </SidebarProvider>
+
+      </NavigationProvider>
+</ResizablePanelGroup>
     </ProtectedRoute>
   )
 }

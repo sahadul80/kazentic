@@ -80,7 +80,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="gap-1"
+        className="gap-1 border-fs"
       >
         <ChevronLeft className="h-4 w-4" />
         Previous
@@ -125,7 +125,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="gap-1"
+        className="gap-1 border-fs"
       >
         Next
         <ChevronRight className="h-4 w-4" />

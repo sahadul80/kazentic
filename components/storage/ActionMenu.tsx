@@ -57,12 +57,11 @@ export function ActionMenu({ type, itemId, onAction, isTrashed = false }: Action
         <Button 
           variant="ghost" 
           size="sm" 
-          className="h-8 w-8 p-0 hover:bg-transparent"
         >
-          <MoreVertical className="h-4 w-4" />
+          <MoreVertical/>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="start" className="w-[224px] h-auto bg-white">
         {actionItems.slice(0, 5).map((item, index) => (
           <DropdownMenuItem
             key={`${item.action}-${index}`}
@@ -70,7 +69,7 @@ export function ActionMenu({ type, itemId, onAction, isTrashed = false }: Action
               e.stopPropagation();
               onAction(item.action);
             }}
-            className="cursor-pointer"
+            className="cursor-pointer h-[40px]"
           >
             {item.icon}
             <span>{item.label}</span>

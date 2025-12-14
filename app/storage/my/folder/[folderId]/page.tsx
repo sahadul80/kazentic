@@ -18,12 +18,12 @@ import {
   ActionType 
 } from "@/types/storage";
 
-export default function FolderPage() {
+export default function MyFolderPage() {
   const router = useRouter();
   const params = useParams();
   const folderId = parseInt(params.folderId as string);
   
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [folders, setFolders] = useState(mockFolders);
   const [files, setFiles] = useState(mockFiles);
   const [breadcrumbs, setBreadcrumbs] = useState<Array<{ id: number; name: string }>>([]);
@@ -176,7 +176,7 @@ export default function FolderPage() {
   }, [folderItems]);
 
   return (
-    <div className="flex flex-col max-w-6xl mx-auto">
+    <div className="flex flex-col w-auto mx-auto">
       <BaseStorageLayout
         // Data
         folders={filteredFolders}

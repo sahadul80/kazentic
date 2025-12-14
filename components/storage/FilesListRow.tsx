@@ -63,8 +63,8 @@ export function FilesListRow({
   const fileColor = getFileColor(file.fileType);
   
   return (
-    <TableRow className="border-b hover:bg-muted/50 h-[60px]">
-      <TableCell className="px-4 py-3">
+    <TableRow className="border-bs hover:bg-muted/50 h-[60px]">
+      <TableCell>
         <div className="flex items-center gap-3">
           <Checkbox
             checked={isSelected}
@@ -100,18 +100,18 @@ export function FilesListRow({
           <span className="text-sm">{file.owner}</span>
         </div>
       </TableCell>
-      <TableCell className="px-4 py-3">
+      <TableCell>
         {(file.sharedWithIds?.length || 0) > 0 ? (
           <div className="flex -space-x-2">
             {sharedUsers.map((user, index) => (
-              <Avatar key={index} className="border-2 border-background h-6 w-6">
+              <Avatar key={index} className="border-fs border-primary h-6 w-6">
                 <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                   {user.initials}
                 </AvatarFallback>
               </Avatar>
             ))}
             {(file.sharedWithIds?.length || 0) > 3 && (
-              <div className="h-6 w-6 rounded-full bg-gray-200 border-2 border-background flex items-center justify-center">
+              <div className="h-6 w-6 rounded-full bg-gray-200 border-fs border-primary flex items-center justify-center">
                 <span className="text-xs">+{file.sharedWithIds?file.sharedWithIds.length - 3:null}</span>
               </div>
             )}
@@ -120,15 +120,15 @@ export function FilesListRow({
           <span className="text-sm text-muted-foreground">—</span>
         )}
       </TableCell>
-      <TableCell className="px-4 py-3 text-sm">{file.size}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">{file.lastModified}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">{file.lastOpened}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">
-        <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors">
+      <TableCell>{file.size}</TableCell>
+      <TableCell>{file.lastModified}</TableCell>
+      <TableCell>{file.lastOpened}</TableCell>
+      <TableCell>
+        <span className="inline-flex items-center rounded-full border-fs px-2.5 py-0.5 text-xs font-semibold transition-colors">
           {file.fileType.toUpperCase()}
         </span>
       </TableCell>
-      <TableCell className="px-4 py-3">
+      <TableCell>
         <ActionMenu
           type="file"
           itemId={file.id}

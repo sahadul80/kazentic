@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="min-h-screen min-w-screen bg-background"
+        className="min-h-screen min-w-screen bg-[linear-gradient(89.94deg,#111953_0.09%,#4157FE_100.9%)]"
       >
         {children}
       </body>

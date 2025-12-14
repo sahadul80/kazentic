@@ -14,7 +14,7 @@ interface FolderItemProps {
 export function FolderItem({ folder, isSelected, onSelect }: FolderItemProps) {
   // For list view only - matches the screenshot layout
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center">
       <Checkbox
         checked={isSelected}
         onCheckedChange={(checked) => {

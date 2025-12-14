@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { BaseStorageLayout } from "./BaseStorageLayout";
 import { useStorageData } from "@/hooks/useStorageData";
+import { useStorageActions } from "@/hooks/useStorageActions";
 
 // Hooks
 import { useStorageSelection } from "@/hooks/useStorageSelection";
@@ -17,20 +19,93 @@ import {
 
 // Types
 import { 
-  ViewMode, 
-  FileItem, 
-  FolderItem, 
+  ViewMode, ActionType,
   EnhancedFolderItem,
   EnhancedFileItem
 } from "@/types/storage";
 
-// Mock current user ID - in a real app, this would come from auth context
-const CURRENT_USER_ID = 1;
+// Interface for user data
+interface UserData {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  workspaceIds: number[];
+}
 
 export function TrashStorageView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [folders, setFolders] = useState<EnhancedFolderItem[]>(trashedFolders as EnhancedFolderItem[]);
-  const [files, setFiles] = useState<EnhancedFileItem[]>(trashedFiles as EnhancedFileItem[]);
+  const router = useRouter();
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [folders, setFolders] = useState<EnhancedFolderItem[]>([]);
+  const [files, setFiles] = useState<EnhancedFileItem[]>([]);
+  const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize user data from localStorage
+  useEffect(() => {
+    const initializeUserData = () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Get user data from localStorage (this would be set after login)
+        const userDataStr = localStorage.getItem('currentUser') || 
+                           sessionStorage.getItem('currentUser');
+        
+        if (!userDataStr) {
+          setError("Please log in to access trash.");
+          setIsLoading(false);
+          return;
+        }
+
+        const userData: UserData = JSON.parse(userDataStr);
+        setCurrentUser(userData);
+        
+        // Load trash items for the current user
+        const userId = userData.id;
+        
+        // Filter trash items for current user
+        const userTrashFolders = trashedFolders.filter(folder => {
+          // In a real app, you would filter by userId
+          return true; // For demo, show all trash items
+        });
+        
+        const userTrashFiles = trashedFiles.filter(file => {
+          // In a real app, you would filter by userId
+          return true; // For demo, show all trash items
+        });
+
+        // For root view, show only top-level items
+        const topLevelFolders = userTrashFolders.filter(folder => !folder.parentFolderId);
+        
+        const topLevelFiles = userTrashFiles.filter(file => {
+          // Files without folderId are at root
+          if (!file.folderId) return true;
+          
+          // Check if parent folder is in trash folders
+          const parentFolder = userTrashFolders.find(f => f.id === file.folderId);
+          // Only show file if its parent folder is NOT in topLevelFolders
+          return !parentFolder || !topLevelFolders.some(f => f.id === parentFolder.id);
+        });
+
+        setFolders(topLevelFolders);
+        setFiles(topLevelFiles);
+        
+      } catch (error) {
+        console.error("Error loading trash items:", error);
+        setError("Failed to load trash items. Please try refreshing the page.");
+        
+        // Clear potentially corrupted data
+        localStorage.removeItem('currentUser');
+        sessionStorage.removeItem('currentUser');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeUserData();
+  }, []);
 
   // Hooks
   const {
@@ -78,14 +153,12 @@ export function TrashStorageView() {
     });
   }, [baseFilteredFiles]);
 
-  // Calculate selected info - FIXED: Use filtered items instead of all items
+  // Calculate selected info
   const selectedInfo = useMemo(() => {
-    // Use filtered items to get accurate selection
     const selectedFolders = filteredFolders.filter(f => selectedItems.includes(f.id));
     const selectedFiles = filteredFiles.filter(f => selectedItems.includes(f.id));
     const selectedAllItems = [...selectedFolders, ...selectedFiles];
     
-    // Calculate total size
     const totalSize = selectedFolders.reduce((sum, folder) => {
       const sizeNum = parseFloat(folder.size.replace(/[^0-9.]/g, ''));
       return sum + (isNaN(sizeNum) ? 0 : sizeNum);
@@ -127,25 +200,19 @@ export function TrashStorageView() {
     
     const totalSize = totalFoldersSize + totalFilesSize;
     
-    // Count items expiring soon
+    // Count items expiring soon (within 7 days)
     const expiringItems = [...folders, ...files].filter(item => 
-      item.trashedAt && storageManager.shouldPermanentlyDelete(item.trashedAt)
+      item.trashedAt && storageManager.getDaysUntilPermanentDeletion(item.trashedAt) <= 7
     );
-    
-    // Calculate average shared users (for compliance with BaseStorageLayout interface)
-    const totalSharedUsers = [...folders, ...files].reduce((sum, item) => {
-      return sum + (item.sharedWith || 0);
-    }, 0);
-    const avgSharedUsers = folders.length + files.length > 0 
-      ? Math.round(totalSharedUsers / (folders.length + files.length))
-      : 0;
     
     // Calculate days until oldest item is permanently deleted
     const allItems = [...folders, ...files].filter(item => item.trashedAt);
     const oldestItem = allItems.length > 0 
-      ? allItems.reduce((oldest, current) => 
-          new Date(current.trashedAt!) < new Date(oldest.trashedAt!) ? current : oldest
-        )
+      ? allItems.reduce((oldest, current) => {
+          const oldestDate = new Date(oldest.trashedAt!);
+          const currentDate = new Date(current.trashedAt!);
+          return currentDate < oldestDate ? current : oldest;
+        })
       : null;
     
     const daysUntilOldestDeletion = oldestItem 
@@ -156,7 +223,6 @@ export function TrashStorageView() {
       total: totalSize,
       folders: folders.length,
       files: files.length,
-      shared: avgSharedUsers,
       expiringItems: expiringItems.length,
       daysUntilOldestDeletion,
     };
@@ -166,63 +232,89 @@ export function TrashStorageView() {
   const handleRestoreItem = useCallback((id: number) => {
     const folder = folders.find(f => f.id === id);
     const file = files.find(f => f.id === id);
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
     
     if (folder) {
       if (confirm(`Restore this folder from trash?`)) {
-        storageManager.restoreFromTrash(id, 'folder', CURRENT_USER_ID);
+        storageManager.restoreFromTrash(id, 'folder', userId);
         setFolders(prev => prev.filter(f => f.id !== id));
         clearSelection();
       }
     } else if (file) {
       if (confirm(`Restore this file from trash?`)) {
-        storageManager.restoreFromTrash(id, 'file', CURRENT_USER_ID);
+        storageManager.restoreFromTrash(id, 'file', userId);
         setFiles(prev => prev.filter(f => f.id !== id));
         clearSelection();
       }
     }
-  }, [folders, files, clearSelection]);
+  }, [folders, files, clearSelection, currentUser]);
 
   const handlePermanentlyDeleteItem = useCallback((id: number) => {
     const folder = folders.find(f => f.id === id);
     const file = files.find(f => f.id === id);
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
     
     if (folder) {
       if (confirm(`Permanently delete this folder? This action cannot be undone.`)) {
-        storageManager.permanentlyDelete(id, 'folder', CURRENT_USER_ID);
+        storageManager.permanentlyDelete(id, 'folder', userId);
         setFolders(prev => prev.filter(f => f.id !== id));
         clearSelection();
       }
     } else if (file) {
       if (confirm(`Permanently delete this file? This action cannot be undone.`)) {
-        storageManager.permanentlyDelete(id, 'file', CURRENT_USER_ID);
+        storageManager.permanentlyDelete(id, 'file', userId);
         setFiles(prev => prev.filter(f => f.id !== id));
         clearSelection();
       }
     }
-  }, [folders, files, clearSelection]);
+  }, [folders, files, clearSelection, currentUser]);
 
   const handleRestoreSelected = useCallback(() => {
     if (selectedItems.length === 0) return;
+    
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
     
     if (confirm(`Restore ${selectedItems.length} item(s) from trash?`)) {
       const selectedFolders = folders.filter(f => selectedItems.includes(f.id));
       const selectedFiles = files.filter(f => selectedItems.includes(f.id));
       
       selectedFolders.forEach(folder => 
-        storageManager.restoreFromTrash(folder.id, 'folder', CURRENT_USER_ID)
+        storageManager.restoreFromTrash(folder.id, 'folder', userId)
       );
       selectedFiles.forEach(file => 
-        storageManager.restoreFromTrash(file.id, 'file', CURRENT_USER_ID)
+        storageManager.restoreFromTrash(file.id, 'file', userId)
       );
       
       setFolders(prev => prev.filter(f => !selectedItems.includes(f.id)));
       setFiles(prev => prev.filter(f => !selectedItems.includes(f.id)));
       clearSelection();
     }
-  }, [selectedItems, folders, files, clearSelection]);
+  }, [selectedItems, folders, files, clearSelection, currentUser]);
 
   const handlePermanentlyDeleteSelected = useCallback(() => {
     if (selectedItems.length === 0) return;
+    
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
     
     const expiringItems = [...folders, ...files]
       .filter(item => selectedItems.includes(item.id))
@@ -239,20 +331,27 @@ export function TrashStorageView() {
       const selectedFiles = files.filter(f => selectedItems.includes(f.id));
       
       selectedFolders.forEach(folder => 
-        storageManager.permanentlyDelete(folder.id, 'folder', CURRENT_USER_ID)
+        storageManager.permanentlyDelete(folder.id, 'folder', userId)
       );
       selectedFiles.forEach(file => 
-        storageManager.permanentlyDelete(file.id, 'file', CURRENT_USER_ID)
+        storageManager.permanentlyDelete(file.id, 'file', userId)
       );
       
       setFolders(prev => prev.filter(f => !selectedItems.includes(f.id)));
       setFiles(prev => prev.filter(f => !selectedItems.includes(f.id)));
       clearSelection();
     }
-  }, [selectedItems, folders, files, clearSelection]);
+  }, [selectedItems, folders, files, clearSelection, currentUser]);
 
   const handleEmptyTrash = useCallback(() => {
     if (folders.length + files.length === 0) return;
+    
+    const userId = currentUser?.id;
+    
+    if (!userId) {
+      setError("User not authenticated. Please log in again.");
+      return;
+    }
     
     const expiringItems = [...folders, ...files].filter(item => 
       item.trashedAt && storageManager.shouldPermanentlyDelete(item.trashedAt)
@@ -268,26 +367,13 @@ export function TrashStorageView() {
       }
     }
     
-    storageManager.emptyTrash(CURRENT_USER_ID);
+    storageManager.emptyTrash(userId);
     setFolders([]);
     setFiles([]);
     clearSelection();
-  }, [folders, files, clearSelection]);
+  }, [folders, files, clearSelection, currentUser]);
 
-  // Custom shared action handler
-  const handleTrashItemAction = useCallback((id: number, action: string) => {
-    switch (action) {
-      case "restore":
-        handleRestoreItem(id);
-        break;
-      case "delete":
-        handlePermanentlyDeleteItem(id);
-        break;
-      default:
-        console.log(`Action ${action} not supported for trash`);
-    }
-  }, [handleRestoreItem, handlePermanentlyDeleteItem]);
-
+  // Custom bulk action handler
   const handleTrashBulkAction = useCallback((action: string) => {
     switch (action) {
       case "restore":
@@ -331,10 +417,10 @@ export function TrashStorageView() {
 
   // Custom storage summary for trash
   const renderTrashStorageSummary = () => {
-    const stats = storageInfo as any;
+    const stats = storageInfo;
     
     return (
-      <div className="w-full border rounded-lg">
+      <div className="w-full border rounded-lg p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-muted-foreground">Items in Trash</h3>
@@ -396,10 +482,129 @@ export function TrashStorageView() {
   };
 
   // Handle folder click
-  const handleFolderClick = useCallback(() => {
-    // In trash view, folder clicks might not navigate since items are trashed
-    console.log("Folder click in trash view");
-  }, []);
+  const handleFolderClick = useCallback((folderId: number) => {
+    router.push(`/storage/trash/folder/${folderId}`);
+  }, [router]);
+
+  // Actions
+  const { handleItemAction } = useStorageActions({
+    setFolders,
+    setFiles,
+    clearSelection,
+  });
+
+  // Enhanced item action handler
+  const handleItemActionWithNavigation = useCallback((id: number, action: ActionType) => {
+    if (action === "open") {
+      const folder = folders.find(f => f.id === id);
+      if (folder) {
+        handleFolderClick(id);
+        return;
+      }
+      
+      const file = files.find(f => f.id === id);
+      if (file) {
+        console.log(`Opening file: ${file.name}`);
+        // TODO: Implement file preview/download
+      }
+    } else if (action === "delete") {
+      const file = files.find(f => f.id === id);
+      if (file && file.folderId) {
+        router.push(`/storage/trash/folder/${file.folderId}`);
+      }
+      handleItemAction(id, action);
+    } else {
+      handleItemAction(id, action);
+    }
+  }, [folders, files, handleFolderClick, handleItemAction, router]);
+
+  // Handle navigation
+  const handleNavigateToFolder = useCallback((folderId: number) => {
+    if (folderId === 0) {
+      router.push("/storage/trash");
+    } else {
+      router.push(`/storage/trash/folder/${folderId}`);
+    }
+  }, [router]);
+
+  // Handle going back
+  const handleGoBack = useCallback(() => {
+    router.back();
+  }, [router]);
+
+  // Handle action buttons
+  const handleDownload = useCallback(() => {
+    console.log('Downloading selected items from trash:', selectedItems);
+  }, [selectedItems]);
+
+  const handleShare = useCallback(() => {
+    console.log('Sharing selected items from trash:', selectedItems);
+  }, [selectedItems]);
+
+  const handleInfo = useCallback(() => {
+    console.log('Info for selected items from trash:', selectedItems);
+  }, [selectedItems]);
+
+  // If loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading trash...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If error, show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Trash</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Refresh Page
+            </button>
+            <button
+              onClick={() => router.push('/login')}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If no user data, show error
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center max-w-md mx-auto p-6">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">Authentication Required</h2>
+          <p className="text-gray-600 mb-6">Please log in to access trash.</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BaseStorageLayout
@@ -416,6 +621,11 @@ export function TrashStorageView() {
       sortConfig={sortConfig}
       hasActiveFilters={hasActiveFilters}
       
+      // Folder Navigation
+      currentFolderId={null}
+      currentFolder={null}
+      breadcrumbs={[{ id: 0, name: "Trash", type: 'root' }]}
+      
       // Callbacks
       onViewModeChange={setViewMode}
       onSearch={(query) => updateFilter("search", query)}
@@ -423,60 +633,36 @@ export function TrashStorageView() {
       onFilterChange={updateFilter}
       onClearFilters={clearFilters}
       onSort={handleSort}
-      onItemAction={handleTrashItemAction}
+      onItemAction={handleItemActionWithNavigation}
       onBulkAction={handleTrashBulkAction}
       onSelectItem={toggleItemSelection}
       onSelectAll={handleSelectAll}
       onClearSelection={clearSelection}
       onFolderClick={handleFolderClick}
+      onGoBack={handleGoBack}
+      onNavigateToFolder={handleNavigateToFolder}
+      
+      // Action button handlers
+      onDownload={handleDownload}
+      onShare={handleShare}
+      onInfo={handleInfo}
+      onDelete={handlePermanentlyDeleteSelected}
       
       // Info
       selectedInfo={selectedInfo}
       
       // Customization
       title="Trash"
-      storageType="personal" // Using personal since trash doesn't have a specific type
+      storageType="personal"
       showProgressBar={false}
-      searchPlaceholder="Search in Trash"
+      showFolderNavigation={false}
+      showBreadcrumbs={true}
+      showAddNewButton={false}
+      searchPlaceholder="Search in Trash..."
       
       // Custom components
       renderStorageSummary={renderTrashStorageSummary}
       renderBulkActions={renderTrashBulkActions}
-      
-      // Custom header content
-      headerContent={
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Trash</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Items in trash will be automatically deleted after 30 days
-              </p>
-            </div>
-            <div className="relative w-64">
-              <input
-                placeholder="Search in trash..."
-                className="pl-4 pr-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                value={filters.search || ""}
-                onChange={(e) => updateFilter("search", e.target.value)}
-              />
-              <svg
-                className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      }
     />
   );
 }

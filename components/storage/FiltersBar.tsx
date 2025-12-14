@@ -1,7 +1,7 @@
 // components/storage/FiltersBar.tsx - Updated with action buttons
 "use client";
 
-import { Grid, List, Info, Download, Share2, Trash2 } from "lucide-react";
+import { List, Info, Download, Share2, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FilterType, ViewMode } from "@/types/storage";
@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, FolderPlus, FileUp, Folder } from "lucide-react";
+import { FilterGridIcon, FilterListIcon } from "../dashboard/SVGs";
 
 interface FiltersBarProps {
   filters: FilterType;
@@ -97,16 +98,16 @@ export function FiltersBar({
       <div className="flex items-center justify-between">
         {/* Left side: Filter dropdowns (only show when no items are selected) */}
         {selectedCount === 0 && (
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 border-none">
             <Select
               value={filters.category || "all"}
               onValueChange={(value) => onFilterChange("category", value)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-fs h-[32px]">
                 <SelectValue placeholder="Type" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+              <SelectContent className="bg-white border-fs flex items-center justify-end">
+                <SelectItem value="all">Types</SelectItem>
                 <SelectItem value="folders">Folders</SelectItem>
                 <SelectItem value="documents">Documents</SelectItem>
                 <SelectItem value="images">Images</SelectItem>
@@ -123,10 +124,10 @@ export function FiltersBar({
               value={filters.lastModified || "all"}
               onValueChange={(value) => onFilterChange("lastModified", value)}
             >
-              <SelectTrigger className="w-40 h-9">
+              <SelectTrigger  className="border-fs h-[32px]">
                 <SelectValue placeholder="Last Modified" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-fs">
                 <SelectItem value="all">All Time</SelectItem>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="week">Last 7 Days</SelectItem>
@@ -140,10 +141,10 @@ export function FiltersBar({
               value={filters.dateAdded || "all"}
               onValueChange={(value) => onFilterChange("dateAdded", value)}
             >
-              <SelectTrigger className="w-36 h-9">
+              <SelectTrigger  className="border-fs h-[32px]">
                 <SelectValue placeholder="Date Added" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-fs">
                 <SelectItem value="all">All Time</SelectItem>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="week">Last 7 Days</SelectItem>
@@ -157,10 +158,10 @@ export function FiltersBar({
               value={filters.people || "all"}
               onValueChange={(value) => onFilterChange("people", value)}
             >
-              <SelectTrigger className="w-36 h-9">
+              <SelectTrigger className="border-fs h-[32px]">
                 <SelectValue placeholder="People" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border-fs">
                 <SelectItem value="all">Everyone</SelectItem>
                 <SelectItem value="me">Owned by me</SelectItem>
                 <SelectItem value="shared">Shared with me</SelectItem>
@@ -191,11 +192,10 @@ export function FiltersBar({
               </div>
               
               {/* Action Buttons */}
-              <div className="flex items-center gap-1 border-l pl-4">
+              <div className="flex items-center gap-1 border-ls">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
                   onClick={onDownload}
                   title="Download"
                 >
@@ -205,7 +205,6 @@ export function FiltersBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
                   onClick={onShare}
                   title="Share"
                 >
@@ -215,7 +214,6 @@ export function FiltersBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
                   onClick={onInfo}
                   title="Info"
                 >
@@ -225,7 +223,6 @@ export function FiltersBar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
                   onClick={onDelete}
                   title="Delete"
                 >
@@ -235,31 +232,28 @@ export function FiltersBar({
             </div>
           ) : (
             <Button 
-              variant="outline" 
+              variant="default"
               size="sm" 
               onClick={() => setIsAddNewModalOpen(true)}
+              className="btn-primary h-[32px] min-w-[97px]"
             >
               + Add New
             </Button>
           )}
           
           {/* View Toggle Buttons */}
-          <div className="flex items-center rounded-md border overflow-hidden">
+          <div className="flex items-center rounded-md border-fs overflow-hidden h-[32px] min-w-[62px]">
             <Button
               variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none px-3 h-8"
               onClick={() => onViewModeChange("grid")}
             >
-              <Grid className="h-4 w-4" />
+              <FilterGridIcon viewMode={viewMode} />
             </Button>
             <Button
               variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              className="rounded-none px-3 h-8"
               onClick={() => onViewModeChange("list")}
             >
-              <List className="h-4 w-4" />
+              <FilterListIcon viewMode={viewMode}/>
             </Button>
           </div>
         </div>
@@ -276,11 +270,11 @@ export function FiltersBar({
           </DialogHeader>
           
           {/* Tabs for Upload/Create */}
-          <div className="flex border-b mb-4">
+          <div className="flex border-bs">
             <button
               className={`flex-1 py-2 text-sm font-medium ${
                 activeTab === "upload"
-                  ? "text-blue-600 border-b-2 border-blue-600"
+                  ? "border-bs"
                   : "text-gray-500"
               }`}
               onClick={() => setActiveTab("upload")}
@@ -290,7 +284,7 @@ export function FiltersBar({
             <button
               className={`flex-1 py-2 text-sm font-medium ${
                 activeTab === "new-folder"
-                  ? "text-blue-600 border-b-2 border-blue-600"
+                  ? "text-blue-600 border-bs"
                   : "text-gray-500"
               }`}
               onClick={() => setActiveTab("new-folder")}
@@ -303,7 +297,7 @@ export function FiltersBar({
             <div className="space-y-4">
               <button
                 onClick={handleUploadFile}
-                className="w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 p-3 border-fs rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Upload className="h-5 w-5 text-gray-600" />
                 <div className="text-left">
@@ -314,7 +308,7 @@ export function FiltersBar({
 
               <button
                 onClick={handleUploadFolder}
-                className="w-full flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 p-3 border-fs rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <FolderPlus className="h-5 w-5 text-gray-600" />
                 <div className="text-left">
