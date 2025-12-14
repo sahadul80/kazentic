@@ -1,3 +1,4 @@
+"use client"
 export interface IconProps {
     active?: boolean;
     size?: string;

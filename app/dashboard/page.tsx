@@ -1,8 +1,8 @@
-import { AppBreadcrumb } from "@/components/dashboard/app-breadcrumb";
-
+"use client"
 export default function DashboardPage () {
     return(
         <>
+        not developed
         </>
     )
 }

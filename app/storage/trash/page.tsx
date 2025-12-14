@@ -1,4 +1,4 @@
-import { AppBreadcrumb } from "@/components/dashboard/app-breadcrumb";
+"use clent"
 import { TrashStorageView } from "@/components/storage/TrashStorageView";
 
 export default function TrashPage () {

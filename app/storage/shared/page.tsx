@@ -1,3 +1,4 @@
+"use client"
 import { SharedStorageView } from "@/components/storage/SharedStorageView";
 
 export default function SharedPage () {
