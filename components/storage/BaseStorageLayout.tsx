@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Download, Share2, Trash2, Folder, Upload, FolderPlus } from "lucide-react";
+import { Download, Share2, Trash2, Folder, Upload, FolderPlus, SearchIcon } from "lucide-react";
 import { FiltersBar } from "./FiltersBar";
 import { FoldersSection } from "./FoldersSection";
 import { FilesSection } from "./FilesSection";
@@ -24,7 +24,7 @@ import {
   BreadcrumbItem
 } from "@/types/storage";
 import { AppBreadcrumb } from "../dashboard/app-breadcrumb";
-import { EmptyFolderIcon } from "../dashboard/SVGs";
+import { EmptyFolderIcon, HeaderSearchIcon } from "../dashboard/SVGs";
 
 interface BaseStorageLayoutProps {
   folders: EnhancedFolderItem[];
@@ -145,14 +145,14 @@ export function BaseStorageLayout({
 
   // Default bulk actions based on storage type
   const defaultBulkActions = () => (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-[8px]">
       <Button
         variant="outline"
         size="sm"
         onClick={onDownload}
         disabled={selectedInfo.count === 0}
       >
-        <Download className="mr-2 h-4 w-4" />
+        <Download />
         Download Selected
       </Button>
       <Button
@@ -161,7 +161,7 @@ export function BaseStorageLayout({
         onClick={onShare}
         disabled={selectedInfo.count === 0}
       >
-        <Share2 className="mr-2 h-4 w-4" />
+        <Share2 />
         {storageType === 'shared' ? 'Update Sharing' : 
          storageType === 'workspace' ? 'Share in Workspace' : 'Share Selected'}
       </Button>
@@ -172,7 +172,7 @@ export function BaseStorageLayout({
         onClick={onDelete}
         disabled={selectedInfo.count === 0}
       >
-        <Trash2 className="mr-2 h-4 w-4" />
+        <Trash2 />
         {storageType === 'shared' ? 'Remove from Shared' : 
          storageType === 'workspace' ? 'Remove from Workspace' : 'Move to Trash'}
       </Button>
@@ -262,35 +262,23 @@ export function BaseStorageLayout({
         animation: "ease-in-out"
       }}  
     >
-      <div className="sticky top-0 h-[36px] bg-background border-bs flex items-center justify-between px-[24px]">
+      <div className="sticky top-0 h-[36px] bg-background border-bs flex items-center justify-between px-[12px]">
         <AppBreadcrumb />
       </div>
-      <div className="w-full max-h-[calc(100vh-96px)] overflow-auto">
+      <div className="w-full max-h-[calc(100vh-96px)]">
         {showBreadcrumbs ? (
-        <div className="flex items-center justify-between px-[24px]">
+        <div className="flex items-center justify-between p-[12px]">
           <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
           <div className="flex items-center gap-[8px]">
             {/* Search Input */}
-            <div className="relative w-64">
+            <div className="relative">
               <input
                 placeholder={searchPlaceholder}
-                className="pl-4 pr-10 w-full rounded-md border-fs bg-background h-[36px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="pl-[36px] w-full rounded-lg border-fs bg-background h-[36px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-[#DBE9FF] disabled:cursor-not-allowed disabled:opacity-50"
                 value={filters.search}
                 onChange={(e) => onSearch(e.target.value)}
               />
-              <svg
-                className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+              <SearchIcon className="absolute inset-1.5 text-[#DBE9FF]"/>
             </div>
           </div>
         </div>
@@ -299,28 +287,16 @@ export function BaseStorageLayout({
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-[8px]">
                 {/* Search Input */}
-                <div className="relative w-64">
+                <div className="relative">
                   <input
                     placeholder={searchPlaceholder}
-                    className="pl-4 pr-10 w-full rounded-md border-fs bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-[36px] w-full rounded-lg border-fs bg-background h-[36px] text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-[#DBE9FF] disabled:cursor-not-allowed disabled:opacity-50"
                     value={filters.search}
                     onChange={(e) => onSearch(e.target.value)}
                   />
-                  <svg
-                    className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                  <SearchIcon className="absolute inset-1.5 text-[#DBE9FF]"/>
                 </div>
                 
                 {/* Action buttons */}
@@ -331,14 +307,14 @@ export function BaseStorageLayout({
                       size="sm"
                       onClick={handleUploadFile}
                     >
-                      <Upload className="mr-2 h-4 w-4" />
+                      <Upload/>
                       Upload
                     </Button>
                     <Button
                       size="sm"
                       onClick={onAddNew}
                     >
-                      <FolderPlus className="mr-2 h-4 w-4" />
+                      <FolderPlus/>
                       New Folder
                     </Button>
                   </div>
@@ -348,77 +324,12 @@ export function BaseStorageLayout({
           </div>
         )}
 
-        {/* Current Folder Info */}
-        {currentFolder && showFolderNavigation && (
-          <div className="bg-muted/30 border-bs p-[12px]">
-            <div>
-              <div className="flex items-center gap-[8px]">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${currentFolder.color}20` }}
-                >
-                  <Folder 
-                    className="h-6 w-6" 
-                    style={{ color: currentFolder.color }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg truncate">{currentFolder.name}</h3>
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span>Owner: {currentFolder.owner}</span>
-                    <span>•</span>
-                    <span>Modified: {currentFolder.lastModified}</span>
-                    {currentFolder.tags && currentFolder.tags.length > 0 && (
-                      <>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          {currentFolder.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="px-1.5 py-0.5 bg-muted rounded text-xs">
-                              {tag}
-                            </span>
-                          ))}
-                          {currentFolder.tags.length > 2 && (
-                            <span className="text-xs">+{currentFolder.tags.length - 2}</span>
-                          )}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center text-sm">
-                  <div className="text-center">
-                    <div className="font-semibold">{folderStats.totalFolders}</div>
-                    <div className="text-muted-foreground text-xs">Folders</div>
-                  </div>
-                  <Separator orientation="vertical" className="h-8" />
-                  <div className="text-center">
-                    <div className="font-semibold">{folderStats.totalFiles}</div>
-                    <div className="text-muted-foreground text-xs">Files</div>
-                  </div>
-                  <Separator orientation="vertical" className="h-8" />
-                  <div className="text-center">
-                    <div className="font-semibold">
-                      {folderStats.totalSize} MB
-                    </div>
-                    <div className="text-muted-foreground text-xs">Size</div>
-                  </div>
-                  <Separator orientation="vertical" className="h-8" />
-                  <div className="text-center">
-                    <div className="font-semibold">{currentFolder.sharedWith || 0}</div>
-                    <div className="text-muted-foreground text-xs">Shared</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Main Content Area */}
         <div 
-          className="flex-1 overflow-auto p-[12px] w-full h-full"
+          className="flex-1 p-[12px] w-full h-full"
         >
             {/* Filters Bar */}
-            <div className="p-[12px] mt-[12px] mb-[12px]">
+            <div>
               <FiltersBar
                 filters={filters}
                 onFilterChange={onFilterChange}
@@ -439,28 +350,30 @@ export function BaseStorageLayout({
             </div>
 
             {/* Content Sections */}
-            <div className="p-[12px] mt-[12px] mb-[12px]">
+            <div>
               {/* Folders Section */}
               {filteredFolders.length > 0 && (
-                <FoldersSection
-                  folders={filteredFolders}
-                  viewMode={viewMode}
-                  selectedItems={selectedItems}
-                  onSelectItem={onSelectItem}
-                  onSelectAll={() => onSelectAll(allItemIds)}
-                  onAction={handleItemAction}
-                  onFolderClick={onFolderClick || (() => {})}
-                  onSort={onSort}
-                  sortConfig={sortConfig}
-                  currentFolderId={currentFolderId}
-                  workspaceId={workspaceId}
-                />
+                <div className="overflow-auto">
+                  <FoldersSection
+                    folders={filteredFolders}
+                    viewMode={viewMode}
+                    selectedItems={selectedItems}
+                    onSelectItem={onSelectItem}
+                    onSelectAll={() => onSelectAll(allItemIds)}
+                    onAction={handleItemAction}
+                    onFolderClick={onFolderClick || (() => {})}
+                    onSort={onSort}
+                    sortConfig={sortConfig}
+                    currentFolderId={currentFolderId}
+                    workspaceId={workspaceId}
+                  />
+                </div>
               )}
 
               {/* Files Section */}
               {filteredFiles.length > 0 && (
-                <div className="p-[12px] mt-[12px] mb-[12px]">
-                  {filteredFolders.length > 0 && <Separator />}
+                <div className="overflow-auto">
+                  {filteredFolders.length > 0 }
                   <FilesSection
                     files={filteredFiles}
                     viewMode={viewMode}

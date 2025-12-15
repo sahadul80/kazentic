@@ -34,6 +34,12 @@ export function Header() {
         router.push("/user/profile")
     }
 
+    const handleUserSelect = (user: User) => {
+        setCurrentUser(user)
+        localStorage.setItem("currentUser", JSON.stringify(user))
+        console.log(`User switched to: ${user.name || user.email}`)
+    }
+
     if (!currentUser) {
         return null
     }
@@ -46,11 +52,11 @@ export function Header() {
             {/* Centered search bar */}
             <div className="absolute left-1/2 transform -translate-x-1/2">
                 <ButtonGroup>
-                    <Button variant="ghost" className=" border-[1px] border-white/50 rounded-lg h-[27px] max-w-[364px] p-[8.69px] gap-[8.69px]">
+                    <Button variant="ghost" className="flex border-[1px] border-white/50 rounded-lg h-[27px] w-auto max-w-[364px] p-[8px] gap-[8px]">
                         <HeaderSearchIcon/>
                         <Input 
                             placeholder="Search ..." 
-                            className="text-white border-0"
+                            className="text-white border-0 hidden md:flex"
                         />
                         <VoiceSearchIcon/>
                     </Button>
@@ -76,7 +82,13 @@ export function Header() {
                 <div className="w-px h-[28px] bg-white/30"></div>
                 
                 <div className="relative">
-                    <UserDropdown user={users} trigger={currentUser} onProfileSettings={handleProfileSettings} onSignOut={handleSignOut} />
+                    <UserDropdown 
+                        user={users} 
+                        trigger={currentUser} 
+                        onUserSelect={handleUserSelect}  // Add this prop
+                        onProfileSettings={handleProfileSettings} 
+                        onSignOut={handleSignOut} 
+                    />
                 </div>
             </div>
         </header>

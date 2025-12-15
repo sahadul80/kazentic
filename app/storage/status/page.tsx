@@ -31,7 +31,7 @@ export default function StatusPage() {
   };
 
   return (
-    <div className="h-screen w-full">
+    <div className="w-full">
       <StorageStatusView 
         filters={filters}
         onSearch={handleSearch}

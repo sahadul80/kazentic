@@ -29,16 +29,15 @@ export default function StoragePieCard() {
   return (
     <Card className="shadow-sm relative overflow-hidden border-fs max-h-[342px] min-w-[474px]">
       <CardHeader className="flex items-center justify-between">
-        <CardTitle className="text-xl font-semibold">Storage</CardTitle>
-
-        <Button variant="outline" className="flex items-center gap-1 text-blue-600">
+        <CardTitle className="text-xl font-semibold">
+          Storage
+          <p className="text-gray-600 text-sm">Total Size : 100 GB</p>
+        </CardTitle>
+        <Button variant="outline" className="flex items-center bg-[#F2F9FE] text-[#4157FE]">
           <span className="text-xs">↗</span> Upgrade
         </Button>
       </CardHeader>
-
       <CardContent className="pt-0">
-        <p className="text-gray-600 text-sm">Total Size : 100 GB</p>
-
         <div className="relative flex items-center justify-center w-full h-[200px]">
           {/* Main Container */}
           <div className="relative w-[200px] h-[200px]">

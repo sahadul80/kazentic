@@ -31,7 +31,6 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
   const sidebar = useSidebar() // Get sidebar state
 
   // Use the state property instead of collapsed
-  const isCollapsed = sidebar.state === "collapsed"
 
   useEffect(() => {
     const storedWorkspaceId = localStorage.getItem("currentWorkspaceId")
@@ -65,7 +64,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
                   {currentWorkspace.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              {!isCollapsed && (
+              {sidebar.state === "expanded" && (
                 <div className="h-[20px] text-sm font-semibold truncate">{currentWorkspace.name}</div>
               )}
             </div>
@@ -74,7 +73,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
               <Avatar className="h-6 w-6">
                 <AvatarFallback>WS</AvatarFallback>
               </Avatar>
-              {!isCollapsed && (
+              {!sidebar && (
                 <div className="text-sm font-semibold">No workspace</div>
               )}
             </div>
@@ -89,7 +88,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
         />
       </SidebarContent>
       
-      {!isCollapsed && showUpgradeCard && (
+      {sidebar.state === "expanded" && showUpgradeCard && (
         <SidebarFooter>
           <div className="bg-gradient-to-br from-blue-500/10 to-white-500/10 border-fs border-blue-200/50 dark:border-blue-700/30 rounded-lg p-2 relative overflow-hidden">
             <Button

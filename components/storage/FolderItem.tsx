@@ -1,4 +1,3 @@
-// components/storage/FolderItem.tsx - Updated for list view only to match screenshot
 "use client";
 
 import { Folder } from "lucide-react";
@@ -22,10 +21,9 @@ export function FolderItem({ folder, isSelected, onSelect }: FolderItemProps) {
             onSelect(folder.id);
           }
         }}
-        className="h-4 w-4"
       />
-      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-        <Folder className="h-4 w-4 text-blue-600" />
+      <div className="w-[24px] h-[24px] bg-blue-100 rounded-lg flex items-center justify-center">
+        <Folder className="w-full h-full" />
       </div>
       <span className="font-medium text-sm">{folder.name}</span>
     </div>

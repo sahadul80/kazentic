@@ -9,17 +9,17 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Settings, LogOut, ChevronDownIcon, Circle } from "lucide-react"
+import { Settings, LogOut, ChevronDownIcon, Check } from "lucide-react"
 import { User } from "@/types/storage"
 import { Avatar, AvatarFallback } from "../ui/avatar"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 interface UserDropdownProps {
   user: User[]
   trigger: User
   onProfileSettings?: () => void
   onSignOut?: () => void
-  onUserChange?: (user: User) => void
+  onUserSelect?: (user: User) => void
 }
 
 export function UserDropdown({ 
@@ -27,36 +27,19 @@ export function UserDropdown({
   trigger, 
   onProfileSettings, 
   onSignOut,
-  onUserChange 
+  onUserSelect
 }: UserDropdownProps) {
-  const [selectedUserId, setSelectedUserId] = useState<number>(() => {
-    // Initialize from localStorage or trigger
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('selectedUserId')
-      return stored ? parseInt(stored) : trigger?.id
-    }
-    return trigger?.id
-  })
-  
   const [isOpen, setIsOpen] = useState(false)
   const router = useRouter()
 
-  // Sync selected user with localStorage and trigger
-  useEffect(() => {
-    if (selectedUserId && typeof window !== 'undefined') {
-      localStorage.setItem('selectedUserId', selectedUserId.toString())
-    }
-  }, [selectedUserId])
-
-  // Get current user for display
-  const currentUser = user.find(u => u.id === selectedUserId) || trigger
-
   // Handle user selection
-  const handleUserSelect = (userId: number) => {
-    setSelectedUserId(userId)
-    const selectedUser = user.find(u => u.id === userId)
-    if (selectedUser && onUserChange) {
-      onUserChange(selectedUser)
+  const handleUserSelect = (userId: string) => {
+    const selectedUser = user.find(u => u.id.toString() === userId)
+    if (selectedUser) {
+      // Call the parent callback
+      if (onUserSelect) {
+        onUserSelect(selectedUser)
+      }
     }
     setIsOpen(false)
   }
@@ -103,15 +86,15 @@ export function UserDropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <div className="h-[34px] w-auto flex items-center p-[5px] gap-[7px]">
+        <div className="h-[34px] w-auto flex items-center p-[5px] gap-[7px] cursor-pointer hover:bg-white/10 rounded transition-colors">
           <Avatar className="h-[24px] w-[24px] border-fs">
             <AvatarFallback className="text-xs">
-              {currentUser.name.split(' ').map(n => n[0]).join('')}
+              {trigger?.name?.split(' ').map(n => n[0]).join('') || 'U'}
             </AvatarFallback>
           </Avatar>
-          <div className="relative flex flex-col items-start justify-start">
-            <span className="text-sm font-bold">{currentUser.name}</span>
-            <span className="text-xs text-white/70">{currentUser.email}</span>
+          <div className="relative flex flex-col items-start justify-start hidden md:flex">
+            <span className="text-sm font-bold">{trigger?.name || 'User'}</span>
+            <span className="text-xs text-white/70">{trigger?.email || 'user@example.com'}</span>
           </div>
           <ChevronDownIcon className="h-[16px] w-[16px] text-white/70"/>
         </div>
@@ -146,8 +129,8 @@ export function UserDropdown({
             }}
           >
             <DropdownMenuRadioGroup
-              value={selectedUserId?.toString()}
-              onValueChange={(value) => handleUserSelect(parseInt(value))}
+              value={trigger?.id?.toString()}  // Use trigger's ID as current value
+              onValueChange={handleUserSelect}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 {user.map((u) => (
@@ -164,21 +147,39 @@ export function UserDropdown({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      background: selectedUserId === u.id ? '#F2F9FE' : 'transparent',
+                      background: trigger?.id === u.id ? '#F2F9FE' : 'transparent',
+                      position: 'relative',
                     }}
                     className="hover:bg-[#F2F9FE]"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '209px', height: '48px' }}>
                       <Avatar style={{ height: '48px', width: '48px' }}>
                         <AvatarFallback className="text-xs">
-                          {u.name.split(" ").map((n) => n[0]).join("")}
+                          {u.name?.split(" ").map((n) => n[0]).join("") || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{u.name}</span>
-                        <span style={{ fontSize: '12px', color: '#666' }}>{u.email}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{u.name || 'User'}</span>
+                        <span style={{ fontSize: '12px', color: '#666' }}>{u.email || 'user@example.com'}</span>
                       </div>
                     </div>
+                    {trigger?.id === u.id && (
+                      <div style={{
+                        position: 'absolute',
+                        right: '14px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: '#2563EB',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <Check size={12} color="white" />
+                      </div>
+                    )}
                   </DropdownMenuRadioItem>
                 ))}
               </div>

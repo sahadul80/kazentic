@@ -37,7 +37,7 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
   const [newName, setNewName] = useState(file.name);
 
   const getFileIcon = () => {
-    const iconClass = viewMode === "grid" ? "h-8 w-8" : "h-5 w-5";
+    const iconClass = viewMode === "grid" ? "h-[70px] w-[70px]" : "h-[24px] w-[24px]";
     switch (file.fileType.toLowerCase()) {
       case "pdf":
         return <FileText className={`${iconClass} text-red-500`} />;
@@ -111,7 +111,7 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
     <>
       {viewMode === "grid" ? (
         <div
-          className={`relative border rounded-lg p-4 cursor-pointer transition-colors ${
+          className={`relative border rounded-lg cursor-pointer transition-colors ${
             isSelected ? "border-primary bg-primary/5" : "hover:border-primary hover:bg-muted/50"
           }`}
           onClick={() => onSelect(file.id)}
@@ -135,7 +135,7 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
             />
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+          <div className="grid grid-cols-2 gap-[8px] text-sm">
             <div>
               <p className="text-muted-foreground">Size</p>
               <p className="font-medium">{file.size}</p>
@@ -155,19 +155,19 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
           </div>
 
           {/* Shared Users */}
-          <div className="mt-4">
-            <p className="text-sm text-muted-foreground mb-1">Shared Users</p>
+          <div>
+            <p className="text-sm text-muted-foreground">Shared Users</p>
             <div className="flex -space-x-2">
               {sharedUsers.map((user, index) => (
-                <Avatar key={index} className="border-2 border-background h-6 w-6">
+                <Avatar key={index} className="border-fs h-[24px] w-[24px]">
                   <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                     {user.initials}
                   </AvatarFallback>
                 </Avatar>
               ))}
               {file.sharedWith > 3 && (
-                <Avatar className="border-2 border-background h-6 w-6">
-                  <AvatarFallback className="text-xs bg-gray-500">
+                <Avatar className="border-fs h-[24px] w-[24px]">
+                  <AvatarFallback>
                     +{file.sharedWith - 3}
                   </AvatarFallback>
                 </Avatar>
@@ -188,7 +188,7 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
         // List View
         <tr className={`hover:bg-muted/50 ${isSelected ? "bg-primary/5" : ""}`}>
           <td className="p-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-[8px]">
               <Checkbox
                 checked={isSelected}
                 onCheckedChange={(checked) => {
@@ -201,8 +201,8 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
               <span className="font-medium">{file.name}</span>
             </div>
           </td>
-          <td className="p-4 font-medium">{file.owner}</td>
-          <td className="p-4">
+          <td className="font-medium">{file.owner}</td>
+          <td>
             <div className="flex -space-x-2">
               {sharedUsers.map((user, index) => (
                 <Avatar key={index} className="border-2 border-background h-6 w-6">
@@ -213,13 +213,13 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
               ))}
             </div>
           </td>
-          <td className="p-4">{file.size}</td>
-          <td className="p-4">{file.lastModified}</td>
-          <td className="p-4">{file.lastOpened}</td>
-          <td className="p-4">
+          <td>{file.size}</td>
+          <td>{file.lastModified}</td>
+          <td>{file.lastOpened}</td>
+          <td>
             <Badge variant="outline">{file.fileType}</Badge>
           </td>
-          <td className="p-4">
+          <td>
             <ActionMenu
               type="file"
               itemId={file.id}
@@ -302,16 +302,16 @@ export function FileItem({ file, isSelected, onSelect, onAction, viewMode }: Fil
             {file.sharedWith > 0 && (
               <div>
                 <Label>Currently shared with</Label>
-                <div className="flex -space-x-2 mt-2">
+                <div className="flex -space-x-2">
                   {sharedUsers.map((user, index) => (
-                    <Avatar key={index} className="border-2 border-background h-8 w-8">
+                    <Avatar key={index} className="border-fs h-[24px] w-[24px]">
                       <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                         {user.initials}
                       </AvatarFallback>
                     </Avatar>
                   ))}
                   {file.sharedWith > 3 && (
-                    <Avatar className="border-2 border-background h-8 w-8">
+                    <Avatar className="border-fs h-[24px] w-[24px]">
                       <AvatarFallback className="text-xs bg-gray-500">
                         +{file.sharedWith - 3}
                       </AvatarFallback>

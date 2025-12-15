@@ -63,9 +63,9 @@ export function FilesListRow({
   const fileColor = getFileColor(file.fileType);
   
   return (
-    <TableRow className="border-bs hover:bg-muted/50 h-[60px]">
-      <TableCell>
-        <div className="flex items-center gap-3">
+    <TableRow className="border-bs hover:bg-muted/50 h-[45px]">
+      <TableCell role="checkbox" className="pl-[12px]">
+        <div className="flex items-center gap-[8px]">
           <Checkbox
             checked={isSelected}
             onCheckedChange={(checked) => {
@@ -73,27 +73,26 @@ export function FilesListRow({
                 onSelect(file.id);
               }
             }}
-            className="h-4 w-4"
             onClick={(e) => e.stopPropagation()}
           />
           <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="rounded-lg flex items-center justify-center"
             style={{ backgroundColor: `${fileColor}20` }}
           >
-            <File className="h-4 w-4" style={{ color: fileColor }} />
+            <File style={{ color: fileColor }} />
           </div>
           <span 
-            className="font-medium text-sm cursor-pointer hover:text-blue-600 hover:underline"
+            className="font-medium text-sm cursor-pointer"
             onClick={() => onAction(file.id, "open")}
           >
             {file.name}
           </span>
         </div>
       </TableCell>
-      <TableCell className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarFallback className="text-xs bg-blue-500">
+      <TableCell>
+        <div className="flex items-center gap-[8px]">
+          <Avatar className="h-[24px] w-[24px]">
+            <AvatarFallback className="text-xs">
               {file.owner.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -102,38 +101,40 @@ export function FilesListRow({
       </TableCell>
       <TableCell>
         {(file.sharedWithIds?.length || 0) > 0 ? (
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-2.5">
             {sharedUsers.map((user, index) => (
-              <Avatar key={index} className="border-fs border-primary h-6 w-6">
+              <Avatar key={index} className="border-fs h-[24px] w-[24px]">
                 <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                   {user.initials}
                 </AvatarFallback>
               </Avatar>
             ))}
-            {(file.sharedWithIds?.length || 0) > 3 && (
-              <div className="h-6 w-6 rounded-full bg-gray-200 border-fs border-primary flex items-center justify-center">
+            {(file.sharedWithIds?.length || 0) > 4 && (
+              <div className="rounded-full border-fs flex items-center justify-center z-10 bg-[#DBE9FF] h-[24px] w-[24px]">
                 <span className="text-xs">+{file.sharedWithIds?file.sharedWithIds.length - 3:null}</span>
               </div>
             )}
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">—</span>
+          <span className="text-sm text-muted-foreground">Personal</span>
         )}
       </TableCell>
       <TableCell>{file.size}</TableCell>
       <TableCell>{file.lastModified}</TableCell>
       <TableCell>{file.lastOpened}</TableCell>
       <TableCell>
-        <span className="inline-flex items-center rounded-full border-fs px-2.5 py-0.5 text-xs font-semibold transition-colors">
+        <span className="inline-flex items-center text-xs font-semibold transition-colors">
           {file.fileType.toUpperCase()}
         </span>
       </TableCell>
       <TableCell>
-        <ActionMenu
-          type="file"
-          itemId={file.id}
-          onAction={(action) => onAction(file.id, action)}
-        />
+        <div className="flex items-center justify-around rotate-90">
+          <ActionMenu
+            type="file"
+            itemId={file.id}
+            onAction={(action) => onAction(file.id, action)}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );

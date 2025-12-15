@@ -4,7 +4,7 @@
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell, TableFooter } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "./Pagination";
 import { FoldersListRow } from "./FoldersListRow";
@@ -79,7 +79,7 @@ export function FoldersSection({
     return (
       <div className="relative group">
         <Card 
-          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm border-fs max-h-[151px] max-w-[150px]"
+          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm border-fs max-h-[150px] max-w-[150px]"
           onClick={() => onFolderClick(folder.id)}
         >
             {/* Selection Checkbox */}
@@ -95,27 +95,22 @@ export function FoldersSection({
             />
           </div>
           
-          {/* Folder Icon with color */}
           <div className="flex items-center justify-around max-h-[150px] max-w-[150px]">
             <StorageFolderIcon />
           </div>
           
-          {/* Items count indicator */}
           <div className="absolute bottom-3 left-3 h-[24px] w-[20px]">
               <span className="text-md font-medium">{totalItems}</span>
           </div>
         </Card> 
-        <div className="flex justify-between max-w-[150px] min-h-[20px] p-[12px]">
-          {/* Folder Name - clickable */}
-          <div className="text-center">
-            <span 
-              className="text-sm truncate block max-w-[120px]"
-              onClick={() => onFolderClick(folder.id)}
-            >
+        <div className="flex justify-between max-w-[150px] min-h-[20px] py-[12px]">
+          <div
+            className="flex items-center justify-start text-sm truncate block max-w-[130px]"
+            onClick={() => onFolderClick(folder.id)}
+          >
               {folder.name}
-            </span>
           </div>
-          <div className="opacity-0 group-hover:cursor-pointer group-hover:opacity-100 max-w-[20px] max-h-[20px]">
+          <div className="opacity-0 cursor-pointer group-hover:opacity-100 w-[20px] h-[20px]">
             <ActionMenu
               type="folder"
               itemId={folder.id}
@@ -133,7 +128,6 @@ export function FoldersSection({
         <h2 className="text-2xl font-semibold tracking-tight">Folders</h2>
         <span className="text-sm text-muted-foreground">{folders.length} items</span>
       </div>
-      <div className="border-fs rounded-lg">
         {viewMode === "grid" ? (
           <div>
             {/* Grid View */}
@@ -151,124 +145,119 @@ export function FoldersSection({
           </div>
         ) : (
           /* List View */
-            <div>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-bs bg-[#F4F5F6] h-[32px]">
-                    <TableHead className="w-[250px]">
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          checked={allSelected}
-                          onCheckedChange={() => onSelectAll(allFolderIds)}
-                          aria-label="Select all folders"
-                          className="h-4 w-4"
-                        />
-                        <span className="text-sm font-medium">Name</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
-                          onClick={() => onSort("name")}
-                        >
-                          <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
-                              sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                    </TableHead>
-                    <TableHead className="p-2">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-medium">Owner</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
-                          onClick={() => onSort("owner")}
-                        >
-                          <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
-                              sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Shared Users</TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-medium">File Size</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
-                          onClick={() => onSort("size")}
-                        >
-                          <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
-                              sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                    </TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm font-medium">Last Modified</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
-                          onClick={() => onSort("lastModified")}
-                        >
-                          <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
-                              sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Last Opened</TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Inside Items</TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentPageFolders.length > 0 ? (
-                    currentPageFolders.map((folder) => (
-                      <FoldersListRow
-                        key={folder.id}
-                        folder={folder}
-                        isSelected={selectedItems.includes(folder.id)}
-                        onSelect={onSelectItem}
-                        onAction={onAction}
-                        onFolderClick={onFolderClick}
+          <div className="border-fs rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-bs bg-[#F4F5F6] h-[32px]">
+                  <TableHead role="checkbox">
+                    <div className="flex items-center pl-[12px] gap-[8px]">
+                      <Checkbox
+                        checked={allSelected}
+                        onCheckedChange={() => onSelectAll(allFolderIds)}
+                        aria-label="Select all folders"
                       />
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
-                        No folders found
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-        )}
-
-        {folders.length > itemsPerPage && (
-          <div className="flex items-center justify-around p-[12px]">
-            <Pagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={handlePageChange} 
-            />
+                      <span className="text-sm font-medium">Name</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-transparent"
+                        onClick={() => onSort("name")}
+                      >
+                        <ChevronDown
+                          className={`transition-transform ${
+                            sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium">Owner</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-transparent"
+                        onClick={() => onSort("owner")}
+                      >
+                        <ChevronDown
+                          className={`transition-transform ${
+                            sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead>Shared Users</TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium">File Size</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-transparent"
+                        onClick={() => onSort("size")}
+                      >
+                        <ChevronDown
+                          className={`transition-transform ${
+                            sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium">Last Modified</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hover:bg-transparent"
+                        onClick={() => onSort("lastModified")}
+                      >
+                        <ChevronDown
+                          className={`transition-transform ${
+                            sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-sm font-medium">Last Opened</TableHead>
+                  <TableHead className="text-sm font-medium">Inside Items</TableHead>
+                  <TableHead className="text-sm font-medium">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {currentPageFolders.length > 0 ? (
+                  currentPageFolders.map((folder) => (
+                    <FoldersListRow
+                      key={folder.id}
+                      folder={folder}
+                      isSelected={selectedItems.includes(folder.id)}
+                      onSelect={onSelectItem}
+                      onAction={onAction}
+                      onFolderClick={onFolderClick}
+                    />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center text-muted-foreground">
+                      No folders found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+            {folders.length > itemsPerPage && (
+              <Pagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                onPageChange={handlePageChange} 
+              />
+            )}
           </div>
         )}
-      </div>
     </div>
   );
 }

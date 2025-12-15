@@ -1,11 +1,9 @@
-// components/storage/FoldersListRow.tsx
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ActionMenu } from "./ActionMenu";
 import { EnhancedFolderItem, ActionType } from "@/types/storage";
-import { Folder } from "lucide-react";
 import { TableCell, TableRow } from "../ui/table";
 import { FolderIcon } from "../dashboard/SVGs";
 
@@ -45,8 +43,8 @@ export function FoldersListRow({
   
   return (
     <TableRow className="border-bs hover:bg-muted/50 h-[45px]">
-      <TableCell>
-        <div className="flex items-center">
+      <TableCell role="checkbox" className="pl-[12px]">
+        <div className="flex items-center gap-[8px]">
           <Checkbox
             checked={isSelected}
             onCheckedChange={(checked) => {
@@ -54,11 +52,10 @@ export function FoldersListRow({
                 onSelect(folder.id);
               }
             }}
-            className="h-4 w-4"
             onClick={(e) => e.stopPropagation()}
           />
           <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            className="rounded-lg flex items-center justify-start gap-[20px]"
             onClick={() => onFolderClick(folder.id)}
           >
             <FolderIcon/>
@@ -71,43 +68,43 @@ export function FoldersListRow({
           </span>
         </div>
       </TableCell>
-      <TableCell className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarFallback className="text-xs bg-blue-500">
+      <TableCell>
+        <div className="flex items-center gap-[8px]">
+          <Avatar className="h-[24px] w-[24px]">
+            <AvatarFallback className="text-xs">
               {folder.owner.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <span className="text-sm">{folder.owner}</span>
         </div>
       </TableCell>
-      <TableCell className="px-4 py-3">
+      <TableCell>
         {(folder.sharedWithIds?.length || 0) > 0 ? (
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-2.5">
             {sharedUsers.map((user, index) => (
-              <Avatar key={index} className="border-fs h-6 w-6">
+              <Avatar key={index} className="border-fs h-[24px] w-[24px]">
                 <AvatarFallback className={`text-xs ${getAvatarColor(index)}`}>
                   {user.initials}
                 </AvatarFallback>
               </Avatar>
             ))}
-            {(folder.sharedWithIds?.length || 0) > 3 && (
-              <div className="h-6 w-6 rounded-full bg-gray-200 border-fs flex items-center justify-center">
-                <span className="text-xs">+{folder.sharedWithIds?folder.sharedWithIds.length - 3:null}</span>
+            {(folder.sharedWithIds?.length || 0) > 4 && (
+              <div className="rounded-full border-fs flex items-center justify-center z-10 bg-[#DBE9FF] h-[24px] w-[24px]">
+                <span className="text-xs">+{folder.sharedWithIds?folder.sharedWithIds.length - 3 : null}</span>
               </div>
             )}
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">—</span>
+          <span className="text-sm text-muted-foreground">Personal</span>
         )}
       </TableCell>
-      <TableCell className="px-4 py-3 text-sm">{folder.size}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">{folder.lastModified}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">{folder.lastOpened}</TableCell>
-      <TableCell className="px-4 py-3 text-sm">
+      <TableCell className="text-sm">{folder.size}</TableCell>
+      <TableCell className="text-sm">{folder.lastModified}</TableCell>
+      <TableCell className="text-sm">{folder.lastOpened}</TableCell>
+      <TableCell className="text-sm">
         {totalItems > 0 ? (
           <div className="flex flex-col">
-            <span className="font-medium">{totalItems} total</span>
+            <span className="font-medium text-sm">{totalItems} total</span>
             <span className="text-xs text-muted-foreground">
               {totalFiles} file{totalFiles !== 1 ? 's' : ''}, {totalChildFolders} folder{totalChildFolders !== 1 ? 's' : ''}
             </span>
@@ -116,12 +113,14 @@ export function FoldersListRow({
           <span className="text-muted-foreground">Empty</span>
         )}
       </TableCell>
-      <TableCell className="px-4 py-3">
-        <ActionMenu
-          type="folder"
-          itemId={folder.id}
-          onAction={(action) => onAction(folder.id, action)}
-        />
+      <TableCell>
+        <div className="flex items-center justify-around rotate-90">  
+          <ActionMenu
+            type="folder"
+            itemId={folder.id}
+            onAction={(action) => onAction(folder.id, action)}
+          />
+        </div>
       </TableCell>
     </TableRow>
   );

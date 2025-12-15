@@ -4,7 +4,7 @@
 import { ChevronDown, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell, TableFooter } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pagination } from "./Pagination";
 import { FilesListRow } from "./FilesListRow";
@@ -106,7 +106,7 @@ export function FilesSection({
     return (
       <div className="relative group">
         <Card 
-          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm border-fs max-h-[150px] max-w-[150px]"
+          className="relative hover:bg-gray-50 transition-colors cursor-pointer group aspect-square rounded-sm border-fs max-h-[151px] max-w-[150px]"
           onClick={() => onAction(file.id, "open")}
         >
           {/* Selection Checkbox */}
@@ -116,22 +116,22 @@ export function FilesSection({
           >
             <Checkbox
               checked={isSelected}
+              className="h-[16px] w-[16px]"
               onCheckedChange={() => onSelectItem(file.id)}
-              className="h-4 w-4"
               aria-label={`Select ${file.name}`}
             />
           </div>
           
           {/* File Icon with file type indicator */}
           <div className="flex items-center justify-around max-h-[150px] max-w-[150px]">
-            <div className="relative mb-2">
+            <div className="relative">
               <File 
                 className="mx-auto h-[70px] w-[70px]" 
                 style={{ color: fileColor }}
               />
               {/* File type indicator */}
               <div 
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white border-fs rounded-full text-xs font-medium"
+                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white border-fs rounded-lg p-[1px] text-xs font-medium"
                 style={{ borderColor: fileColor }}
               >
                 {fileType}
@@ -139,24 +139,21 @@ export function FilesSection({
             </div>
             
             {/* File size indicator */}
-            <div className="absolute bottom-3 left-3">
+            <div className="absolute bottom-3 left-3 h-[24px] w-auto">
               <div className="flex flex-col items-start">
                 <span className="text-md font-medium">{file.size}</span>
               </div>
             </div>
           </div>
         </Card>
-        <div className="flex items-center justify-between max-w-[150px] min-h-[20px] p-[12px]">
-          {/* Folder Name - clickable */}
-          <div className="text-center flex-1 min-w-0">
-            <span 
-              className="text-sm truncate block max-w-[120px]"
-              onClick={() => onAction(file.id, "open")}
-            >
-              {file.name}
-            </span>
-          </div>
-          <div className="opacity-0 group-hover:cursor-pointer group-hover:opacity-100 max-w-[20px] max-h-[20px]">
+        <div className="flex justify-between max-w-[150px] min-h-[20px] py-[12px]">
+          <span 
+            className="flex items-center justify-start text-sm truncate block max-w-[130px]"
+            onClick={() => onAction(file.id, "open")}
+          >
+            {file.name}
+          </span>
+          <div className="opacity-0 cursor-pointer group-hover:opacity-100 w-[20px] h-[20px]">
             <ActionMenu
               type="file"
               itemId={file.id}
@@ -174,9 +171,9 @@ export function FilesSection({
         <h2 className="text-2xl font-semibold tracking-tight">Files</h2>
         <span className="text-sm text-muted-foreground">{files.length} items</span>
       </div>
-      <div className="border-fs rounded-lg">
+      <div>
         {viewMode === "grid" ? (
-          <>
+          <div className="flex-1 items-center justify-between">
             {/* Grid View */}
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-[8px]">
               {currentPageFiles.length > 0 ? (
@@ -184,25 +181,33 @@ export function FilesSection({
                   <FileGridCard key={file.id} file={file} />
                 ))
               ) : (
-                <div className="col-span-full h-40 flex items-center justify-center text-muted-foreground">
+                <div className="col-span-full flex items-center justify-center text-muted-foreground">
                   No files found
                 </div>
               )}
             </div>
-          </>
+            {files.length > itemsPerPage && (
+              <div className="flex items-center justify-around p-[12px]">
+                <Pagination 
+                  currentPage={currentPage} 
+                  totalPages={totalPages} 
+                  onPageChange={handlePageChange} 
+                />
+              </div>
+            )}
+          </div>
         ) : (
           /* List View */
-            <div className="overflow-x-auto">
+            <div className="border-fs rounded-lg">
               <Table>
                 <TableHeader>
                   <TableRow className="border-bs bg-[#F4F5F6] h-[32px]">
-                    <TableHead className="w-[250px]">
-                      <div className="flex items-center gap-2">
+                    <TableHead role="checkbox">
+                      <div className="flex items-center pl-[12px] gap-[8px]">
                         <Checkbox
                           checked={allSelected}
                           onCheckedChange={() => onSelectAll(allFileIds)}
                           aria-label="Select all files"
-                          className="h-4 w-4"
                         />
                         <span className="text-sm font-medium">Name</span>
                         <Button
@@ -219,77 +224,77 @@ export function FilesSection({
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
+                    <TableHead>
+                      <div className="flex items-center gap-[8px]">
                         <span className="text-sm font-medium">Owner</span>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          className="hover:bg-transparent"
                           onClick={() => onSort("owner")}
                         >
                           <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
+                            className={`transition-transform ${
                               sortConfig?.key === "owner" && sortConfig.direction === "ascending" ? "rotate-180" : ""
                             }`}
                           />
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Shared Users</TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
+                    <TableHead>Shared Users</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-[8px]">
                         <span className="text-sm font-medium">File Size</span>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          className="hover:bg-transparent"
                           onClick={() => onSort("size")}
                         >
                           <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
+                            className={`transition-transform ${
                               sortConfig?.key === "size" && sortConfig.direction === "ascending" ? "rotate-180" : ""
                             }`}
                           />
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
+                    <TableHead>
+                      <div className="flex items-center gap-[8px]">
                         <span className="text-sm font-medium">Last Modified</span>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          className="hover:bg-transparent"
                           onClick={() => onSort("lastModified")}
                         >
                           <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
+                            className={`transition-transform ${
                               sortConfig?.key === "lastModified" && sortConfig.direction === "ascending" ? "rotate-180" : ""
                             }`}
                           />
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Last Opened</TableHead>
-                    <TableHead className="px-4 py-3">
-                      <div className="flex items-center gap-1">
+                    <TableHead className="text-sm font-medium">Last Opened</TableHead>
+                    <TableHead>
+                      <div className="flex items-center gap-[8px]">
                         <span className="text-sm font-medium">File Type</span>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          className="hover:bg-transparent"
                           onClick={() => onSort("fileType")}
                         >
                           <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
+                            className={`transition-transform ${
                               sortConfig?.key === "fileType" && sortConfig.direction === "ascending" ? "rotate-180" : ""
                             }`}
                           />
                         </Button>
                       </div>
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-sm font-medium">Action</TableHead>
+                    <TableHead className="text-sm font-medium">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -305,24 +310,23 @@ export function FilesSection({
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center text-muted-foreground">
                         No files found
                       </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
               </Table>
+              {files.length > itemsPerPage && (
+                <div className="flex items-center justify-around p-[12px]">
+                  <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={handlePageChange} 
+                  />
+                </div>
+              )}
             </div>
-        )}
-
-        {files.length > itemsPerPage && (
-          <div className="flex items-center justify-around p-[12px]">
-            <Pagination 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              onPageChange={handlePageChange} 
-            />
-          </div>
         )}
       </div>
     </div>

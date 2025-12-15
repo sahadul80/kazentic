@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Upload,
   FolderPlus,
+  SearchIcon,
 } from "lucide-react";
 
 // Import data from mockStorageData
@@ -19,9 +20,9 @@ import { AppBreadcrumb } from "../dashboard/app-breadcrumb";
 import { usePathname } from "next/navigation";
 import StoragePieCard from "./PieChart";
 import { FileCategoriesChart } from "./FileCategoriesChart";
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
+import { ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
 import StorageAnalytics from "./StorageAnalytics";
-import FilesTable from "./FilesTable";
+import { FilesTable } from "./FilesTable";
 
 //--------------------------------------------------
 // HELPER FUNCTIONS
@@ -240,7 +241,7 @@ export default function StorageStatusView({
 
   return (
     <div
-      className="flex flex-col w-full h-screen"
+      className="flex flex-col w-full"
       style={{
         minWidth: isSidebarCollapsed ? 'calc(100vw - 96px)' : 'calc(100vw - 256px)',
         maxWidth: isSidebarCollapsed ? 'calc(100vw - 96px)' : 'calc(100vw - 256px)',
@@ -248,14 +249,12 @@ export default function StorageStatusView({
       }}  
     >
       {/* Sticky Breadcrumb */}
-      <div className="sticky top-0 z-50 bg-background border-bs">
-        <div className="h-[36px] flex items-center justify-between px-[20px]">
-          <AppBreadcrumb />
-        </div>
+      <div className="sticky top-0 h-[36px] bg-background border-bs flex items-center justify-between px-[24px]">
+        <AppBreadcrumb />
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto">
+      <div className="w-full max-h-[calc(100vh-96px)] overflow-auto">
         {showBreadcrumbs ? (
           <div className="flex items-center justify-between p-[12px]">
             <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
@@ -274,19 +273,7 @@ export default function StorageStatusView({
                     value={mergedFilters.search}
                     onChange={(e) => onSearch(e.target.value)}
                   />
-                  <svg
-                    className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
+                  <SearchIcon/>
                 </div>
                 
                 {/* Action buttons */}
@@ -315,7 +302,7 @@ export default function StorageStatusView({
         )}
         
         {/* Main Content Area */}
-        <div className="p-[12px]">
+        <div className="p-[12px] flex overflow-auto">
           <ResizablePanelGroup direction="vertical" className="max-h-[calc(100vh-100px)] w-full gap-[8px]">
             <ResizablePanel defaultSize={50} minSize={30} className="min-h-[342px]">
               <ResizablePanelGroup direction="horizontal" className="gap-[8px] h-full">
@@ -334,16 +321,10 @@ export default function StorageStatusView({
                   <StorageAnalytics
                     usedStorage={`${(usedMB / 1024).toFixed(1)} GB`}
                     totalStorage="100 GB"
-                    storageItems={storageAnalyticsData}
                   />
                 </ResizablePanel>
                 <ResizablePanel defaultSize={67} minSize={50} className="min-w-[770px]">
-                  <FilesTable
-                    title="Files"
-                    folderName="All Files"
-                    files={enhancedFiles}
-                    onFileAction={handleFileAction}
-                  />
+                  <FilesTable/>
                 </ResizablePanel>
               </ResizablePanelGroup>
             </ResizablePanel>
