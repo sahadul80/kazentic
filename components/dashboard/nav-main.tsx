@@ -133,12 +133,12 @@ export function NavMain({
                   <div className="flex flex-col items-center">
 
                     {/* MAIN ICON + CHEVRON */}
-                    <div className="flex flex-row items-center justify-between w-full">
+                    <div className="flex flex-row items-center justify-center w-full">
                       <Button
                         variant="ghost"
                         size="icon"
                         className={cn(
-                          "rounded-md flex items-center",
+                          "rounded-md flex items-center justify-between",
                           isActive && "bg-[#F2F9FE]"
                         )}
                         onClick={() => {
@@ -149,21 +149,20 @@ export function NavMain({
                         {item.icon && (
                           <item.icon active={isActive} />
                         )}
+                        {hasChildren && (
+                          <ChevronDown
+                            size="16px"
+                            className={cn(
+                              "transition-transform duration-200 bg-transparent flex-shrink-0",
+                              isOpen && "rotate-180"
+                            )}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleCollapsible(item.title)
+                            }}
+                          />
+                        )}
                       </Button>
-
-                      {hasChildren && (
-                        <ChevronDown
-                          size="16px"
-                          className={cn(
-                            "transition-transform duration-200 bg-white flex-shrink-0",
-                            isOpen && "rotate-180"
-                          )}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            toggleCollapsible(item.title)
-                          }}
-                        />
-                      )}
                     </div>
 
                     {/* SUB ICON STACK (aligned with chevron) */}
@@ -218,21 +217,20 @@ export function NavMain({
                           <item.icon active={isActive} size="18px" />
                         )}
                         <span className="flex-1 text-left">{item.title}</span>
+                        {/* EXPANDED CHEVRON */}
+                        {hasChildren && (
+                          <CollapsibleTrigger>
+                              <ChevronDown
+                                size="16px"
+                                className={cn(
+                                  "transition-transform duration-200",
+                                  isOpen && "rotate-180"
+                                )}
+                              />
+                          </CollapsibleTrigger>
+                        )}
                       </div>
                     </SidebarMenuButton>
-
-                    {/* EXPANDED CHEVRON */}
-                    {hasChildren && (
-                      <CollapsibleTrigger>
-                          <ChevronDown
-                            size="16px"
-                            className={cn(
-                              "transition-transform duration-200",
-                              isOpen && "rotate-180"
-                            )}
-                          />
-                      </CollapsibleTrigger>
-                    )}
                   </div>
 
                   {/* SUB ITEMS */}

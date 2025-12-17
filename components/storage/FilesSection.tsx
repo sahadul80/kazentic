@@ -171,7 +171,7 @@ export function FilesSection({
         <h2 className="text-2xl font-semibold tracking-tight">Files</h2>
         <span className="text-sm text-muted-foreground">{files.length} items</span>
       </div>
-      <div>
+      <div className="overflow-auto">
         {viewMode === "grid" ? (
           <div className="flex-1 items-center justify-between">
             {/* Grid View */}
@@ -213,11 +213,11 @@ export function FilesSection({
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          className="p-0 hover:bg-transparent"
                           onClick={() => onSort("name")}
                         >
                           <ChevronDown
-                            className={`h-3 w-3 transition-transform ${
+                            className={`transition-transform ${
                               sortConfig?.key === "name" && sortConfig.direction === "ascending" ? "rotate-180" : ""
                             }`}
                           />

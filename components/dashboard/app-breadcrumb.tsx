@@ -463,9 +463,9 @@ export function AppBreadcrumb() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <div className="flex items-center gap-2">
-              {Icon && <Icon active={item.isCurrent} size="16" />}
-              <BreadcrumbPage>{item.name}</BreadcrumbPage>
+            <div className="cursor-pointer flex items-center gap-[8px]">
+              {Icon && <Icon active={item.isCurrent} size="16px" />}
+              <BreadcrumbPage className="hidden md:flex">{item.name}</BreadcrumbPage>
             </div>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -487,7 +487,9 @@ export function AppBreadcrumb() {
                 {item.isCurrent ? (
                   <div className="flex items-center gap-2">
                     {Icon && <Icon active={item.isCurrent} size="16px" />}
-                    <BreadcrumbPage>{item.name}</BreadcrumbPage>
+                    <BreadcrumbPage>
+                      {item.name}
+                    </BreadcrumbPage>
                   </div>
                 ) : (
                   <BreadcrumbLink
@@ -495,10 +497,10 @@ export function AppBreadcrumb() {
                       e.preventDefault()
                       router.push(item.href)
                     }}
-                    className="cursor-pointer flex items-center gap-2"
+                    className="cursor-pointer flex items-center gap-[8px]"
                   >
-                    {Icon && <Icon active={item.isCurrent} size="16" />}
-                    {item.name}
+                    {Icon && <Icon active={item.isCurrent} size="16px" />}
+                    <span className="hidden md:flex">{item.name}</span>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>

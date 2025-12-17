@@ -303,7 +303,7 @@ export function FilesTable() {
         </div>
 
         {/* Right Column - Content Area */}
-        <div className="flex-1 p-[8px]">
+        <div className="flex-1 items-center p-[12px]">
           {/* Breadcrumb for folder navigation */}
           {activeTab === "folders" && selectedFolder && (
             <div>
@@ -321,11 +321,11 @@ export function FilesTable() {
           )}
 
           {/* Table Container */}
-          <div className="m-[12px] border-fs rounded-lg">
+          <div className="m-[12px] p-[4px] border-fs rounded-lg">
             <Table>
               <TableHeader>
-                <TableRow className="border-0 border-b border-[#EBEBEB] bg-[#F4F5F6] h-[32px]">
-                  <TableHead className="px-[12px] text-foreground border-0 border-r-0 border-b border-l-0 border-[#EBEBEB]">
+                <TableRow className="h-[32px]">
+                  <TableHead className="px-[12px] text-foreground ">
                     {activeTab === "all" ? "Files" : "Folder Name"}
                   </TableHead>
                   <TableHead className="text-foreground border-0 border-r-0 border-b border-l-0 border-[#EBEBEB]">
@@ -341,11 +341,11 @@ export function FilesTable() {
                   paginatedItems.map((item) => (
                     <TableRow 
                       key={`${item.type}-${item.id}`}
-                      className="w-auto h-[45px] opacity-100 border-0 border-b border-[#EBEBEB] hover:bg-muted/50 data-[state=selected]:bg-muted transition-colors"
+                      className="w-auto h-[40px] opacity-100 border-0 border-b border-[#EBEBEB] hover:bg-muted/50 data-[state=selected]:bg-muted transition-colors"
                     >
                       {/* File/Folder Name */}
                       <TableCell className="px-[12px] whitespace-nowrap border-0 border-b border-[#EBEBEB]">
-                        <div className="flex items-center gap-[8px]                                                                                                                                          ]">
+                        <div className="flex items-center gap-[8px]">
                           {item.type === "folder" ? (
                             <div 
                               onClick={() => handleFolderClick(item.id)}
@@ -400,7 +400,7 @@ export function FilesTable() {
                               <MoreHorizontal className="text-[#718096]" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="bg-[white]">
                             <DropdownMenuItem 
                               onClick={() => handleAction('open', item.id, item.type)}
                               className="cursor-pointer"

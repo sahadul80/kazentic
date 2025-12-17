@@ -74,20 +74,18 @@ export default function StoorageLayout({ children }: DashboardLayoutProps) {
     <ProtectedRoute>
       <Header />
       <SideMenu />
-        <ResizablePanelGroup direction="horizontal">
-
-      <NavigationProvider>
+      <ResizablePanelGroup direction="horizontal">
+        <NavigationProvider>
           <SidebarProvider>
-  <ResizablePanel className="flex rounded-lg mt-[38px] ml-[38px] w-full bg-white">
-      <AppSidebar />
-            <div className="bg-white">
-                {children}
-            </div>
-  </ResizablePanel>
-  </SidebarProvider>
-
-      </NavigationProvider>
-</ResizablePanelGroup>
+            <ResizablePanel className="flex rounded-lg mt-[38px] ml-[38px] w-full bg-white">
+              <AppSidebar />
+              <div className="bg-white">
+                  {children}
+              </div>
+            </ResizablePanel>
+          </SidebarProvider>
+        </NavigationProvider>
+      </ResizablePanelGroup>
     </ProtectedRoute>
   )
 }

@@ -38,6 +38,7 @@ export function Header() {
         setCurrentUser(user)
         localStorage.setItem("currentUser", JSON.stringify(user))
         console.log(`User switched to: ${user.name || user.email}`)
+        router.push("/")
     }
 
     if (!currentUser) {

@@ -268,7 +268,7 @@ export function BaseStorageLayout({
       <div className="w-full max-h-[calc(100vh-96px)]">
         {showBreadcrumbs ? (
         <div className="flex items-center justify-between p-[12px]">
-          <h1 className="text-2xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
+          <h1 className="text-xl font-semibold tracking-tight">{getHeaderTitle()}</h1>
           <div className="flex items-center gap-[8px]">
             {/* Search Input */}
             <div className="relative">
@@ -353,7 +353,7 @@ export function BaseStorageLayout({
             <div>
               {/* Folders Section */}
               {filteredFolders.length > 0 && (
-                <div className="overflow-auto">
+                <div>
                   <FoldersSection
                     folders={filteredFolders}
                     viewMode={viewMode}
@@ -372,7 +372,7 @@ export function BaseStorageLayout({
 
               {/* Files Section */}
               {filteredFiles.length > 0 && (
-                <div className="overflow-auto">
+                <div>
                   {filteredFolders.length > 0 }
                   <FilesSection
                     files={filteredFiles}

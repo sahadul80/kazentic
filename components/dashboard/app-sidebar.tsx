@@ -53,7 +53,7 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
       {...props}
       className="top-[38px] left-[38px] w-[200px] h-[calc(100vh-38px)] bg-white rounded-l-lg border-rs"
     >
-      <SidebarHeader className="h-[35px] flex items-center border-bs">
+      <SidebarHeader className="h-[36px] flex items-center border-bs px-[12px] py-[8px]">
         <div className="flex items-center justify-between w-full h-full">
           {currentWorkspace ? (
             <div className="flex items-center gap-[8px]">
@@ -65,12 +65,12 @@ export function AppSidebar({ collapsed, ...props }: AppSidebarProps) {
                 </AvatarFallback>
               </Avatar>
               {sidebar.state === "expanded" && (
-                <div className="h-[20px] text-sm font-semibold truncate">{currentWorkspace.name}</div>
+                <div className="h-[24px] w-[126px] text-sm font-semibold truncate">{currentWorkspace.name}</div>
               )}
             </div>
           ) : (
             <div className="flex items-center gap-[8px]">
-              <Avatar className="h-6 w-6">
+              <Avatar className="h-[24px] w-[24px]">
                 <AvatarFallback>WS</AvatarFallback>
               </Avatar>
               {!sidebar && (
