@@ -1,4 +1,3 @@
-"use client"
 import { KazenticLogo } from "@/components/dashboard/SVGs"
 import { LoginForm } from "@/components/LoginForm"
 import Link from "next/link"
