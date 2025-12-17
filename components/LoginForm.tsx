@@ -88,34 +88,16 @@ export function LoginForm({
       setError("No workspace found for this user")
       return
     }
-
-    // Create user data object with workspace information
     const userData = {
       ...user,
-      workspaceIds: userWorkspaces.map(w => w.id) // Add workspace IDs to user data
+      workspaceIds: userWorkspaces.map(w => w.id)
     }
-
-    // Store user in state
     setCurrentUser(userData)
-
-    // Store user data based on rememberMe setting
-    if (rememberMe) {
-      localStorage.setItem("currentUser", JSON.stringify(userData))
-    } else {
-      sessionStorage.setItem("currentUser", JSON.stringify(userData))
-    }
-    
-    // Store workspace data
     localStorage.setItem("currentWorkspaceId", workspace.id.toString())
     localStorage.setItem("currentWorkspace", JSON.stringify(workspace))
-    
-    // Also store userData in localStorage for backward compatibility
     localStorage.setItem("currentUser", JSON.stringify(userData))
-    
-    // Store workspaces in localStorage for use in other components
     localStorage.setItem("workspaces", JSON.stringify(userWorkspaces))
     
-    // Redirect to dashboard
     router.push("/dashboard")
   }
 
